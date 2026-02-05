@@ -1,6 +1,6 @@
 // milAIdy - Agent Chat Observatory
 // https://milaidy.net
-const VERSION = '2.0.2'; // Increment this to force chat clear
+const VERSION = '2.0.3'; // Increment this to force chat clear
 
 // Milady avatars
 const MILADY_AVATARS = [
@@ -223,6 +223,7 @@ function handleWebSocketMessage(data) {
             handleMessageDeleted(data.payload);
             break;
         case 'human_message':
+            // Show messages from others (we already showed our own locally)
             handleHumanMessage(data.payload);
             break;
         case 'sync':
@@ -680,68 +681,83 @@ const style = document.createElement('style');
 style.textContent = '@keyframes fadeIn{from{opacity:0;background:#ffe0d6}to{opacity:1}}';
 document.head.appendChild(style);
 
-// Human Trollbox - Retro Style
+// Human Trollbox
+let lastSentMsg = null;
+
 function initTrollbox() {
     const chat = document.getElementById('trollboxChat');
     const nameInput = document.getElementById('tbName');
     const msgInput = document.getElementById('tbMsg');
     const sendBtn = document.getElementById('tbSend');
 
-    if (!chat || !nameInput || !msgInput || !sendBtn) return;
+    if (!chat || !nameInput || !msgInput || !sendBtn) {
+        console.log('[Trollbox] Elements not found');
+        return;
+    }
 
-    // Load saved nick
     nameInput.value = localStorage.getItem('tbNick') || '';
 
-    function sendMsg() {
+    function send() {
         const nick = nameInput.value.trim() || 'anon';
         const text = msgInput.value.trim();
         if (!text) return;
 
         localStorage.setItem('tbNick', nick);
+        lastSentMsg = nick + ':' + text; // Track to avoid duplicate
 
-        // Access websocket from window.milAIdy if state not available
-        const ws = state.websocket || (window.milAIdy && window.milAIdy.state.websocket);
+        // Show locally immediately
+        addTrollboxMsg(nick, text);
 
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
+        // Send to server if connected
+        if (state.websocket && state.websocket.readyState === 1) {
+            state.websocket.send(JSON.stringify({
                 type: 'human_message',
                 payload: { name: nick, text: text }
             }));
-            msgInput.value = '';
-            msgInput.focus();
-        } else {
-            console.log('[Trollbox] WebSocket not connected');
-            // Show message locally anyway for feedback
-            handleHumanMessage({ name: nick, text: text + ' (offline)' });
-            msgInput.value = '';
         }
+
+        msgInput.value = '';
+        msgInput.focus();
     }
 
-    sendBtn.onclick = sendMsg;
-    msgInput.onkeydown = (e) => { if (e.key === 'Enter') sendMsg(); };
+    sendBtn.addEventListener('click', send);
+    msgInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') send();
+    });
+
+    console.log('[Trollbox] Initialized');
 }
 
-function handleHumanMessage(payload) {
+function addTrollboxMsg(name, text) {
     const chat = document.getElementById('trollboxChat');
-    if (!chat || !payload.name || !payload.text) return;
+    if (!chat) return;
 
-    // Remove welcome message
+    // Remove welcome
     const welcome = chat.querySelector('.trollbox-welcome');
     if (welcome) welcome.remove();
 
     const line = document.createElement('div');
     line.className = 'trollbox-line';
-    line.innerHTML = '<b>' + escapeHtml(payload.name) + ':</b> ' + escapeHtml(payload.text);
+    line.innerHTML = '<b>' + escapeHtml(name) + ':</b> ' + escapeHtml(text);
     chat.appendChild(line);
     chat.scrollTop = chat.scrollHeight;
 
-    // Keep only last 30 messages
     while (chat.children.length > 30) {
         chat.firstChild.remove();
     }
 }
 
-// Init on load
+function handleHumanMessage(payload) {
+    if (!payload || !payload.name || !payload.text) return;
+    // Skip if this is our own message (already shown locally)
+    const msgKey = payload.name + ':' + payload.text;
+    if (msgKey === lastSentMsg) {
+        lastSentMsg = null;
+        return;
+    }
+    addTrollboxMsg(payload.name, payload.text);
+}
+
 document.addEventListener('DOMContentLoaded', initTrollbox);
 
 // Export API for external use
