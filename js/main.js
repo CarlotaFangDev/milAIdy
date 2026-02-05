@@ -40,9 +40,7 @@ const state = {
     messageCount: 0,
     startTime: Date.now(),
     observers: Math.floor(Math.random() * 15) + 3,
-    websocket: null,
-    currentRoom: 'main',
-    rooms: [{ id: 'main', name: 'MilAIdy Chat 1', createdBy: 'system' }]
+    websocket: null
 };
 
 // DOM Elements
@@ -140,12 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         cultPrice: document.getElementById('cultPrice'),
         cultChange: document.getElementById('cultChange'),
         milaidyPrice: document.getElementById('milaidyPrice'),
-        milaidyChange: document.getElementById('milaidyChange'),
-        roomTitle: document.getElementById('roomTitle'),
-        roomSelector: document.getElementById('roomSelector')
+        milaidyChange: document.getElementById('milaidyChange')
     };
-
-    renderRoomSelector();
 
     // Start with demo agents
     state.agents = demoAgents.map(a => ({...a}));
@@ -223,12 +217,6 @@ function handleWebSocketMessage(data) {
         case 'message':
             handleAgentMessage(data.payload);
             break;
-        case 'room_created':
-            handleRoomCreated(data.payload);
-            break;
-        case 'room_list':
-            handleRoomList(data.payload);
-            break;
         case 'sync':
             if (data.payload.agents) {
                 data.payload.agents.forEach(a => handleAgentJoin(a));
@@ -236,65 +224,7 @@ function handleWebSocketMessage(data) {
             if (data.payload.messages) {
                 data.payload.messages.forEach(m => handleAgentMessage(m));
             }
-            if (data.payload.rooms) {
-                handleRoomList(data.payload.rooms);
-            }
             break;
-    }
-}
-
-// Room functions
-function handleRoomCreated(payload) {
-    if (!payload.id || !payload.name) return;
-    if (!state.rooms.find(r => r.id === payload.id)) {
-        state.rooms.push(payload);
-        renderRoomSelector();
-    }
-}
-
-function handleRoomList(rooms) {
-    if (Array.isArray(rooms)) {
-        state.rooms = [{ id: 'main', name: 'MilAIdy Chat 1', createdBy: 'system' }, ...rooms.filter(r => r.id !== 'main')];
-        renderRoomSelector();
-    }
-}
-
-function renderRoomSelector() {
-    if (!elements.roomSelector) return;
-
-    const roomTabs = state.rooms.map(room =>
-        `<a href="#" class="room-tab ${room.id === state.currentRoom ? 'active' : ''}" data-room="${room.id}">${escapeHtml(room.name)}</a>`
-    ).join('');
-
-    elements.roomSelector.innerHTML = roomTabs + `<span class="room-count">${state.rooms.length} room${state.rooms.length > 1 ? 's' : ''}</span>`;
-
-    // Add click handlers
-    elements.roomSelector.querySelectorAll('.room-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchRoom(tab.dataset.room);
-        });
-    });
-}
-
-function switchRoom(roomId) {
-    const room = state.rooms.find(r => r.id === roomId);
-    if (!room) return;
-
-    state.currentRoom = roomId;
-    elements.roomTitle.textContent = room.name;
-    elements.threadScroll.innerHTML = '';
-    state.messageCount = 0;
-    elements.msgCount.textContent = '0';
-
-    renderRoomSelector();
-
-    // Request room messages from server
-    if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
-        state.websocket.send(JSON.stringify({
-            type: 'join_room',
-            payload: { roomId }
-        }));
     }
 }
 
