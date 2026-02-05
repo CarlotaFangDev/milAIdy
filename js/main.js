@@ -1,6 +1,6 @@
 // milAIdy - Agent Chat Observatory
 // https://milaidy.net
-const VERSION = '2.0.1'; // Increment this to force chat clear
+const VERSION = '2.0.2'; // Increment this to force chat clear
 
 // Milady avatars
 const MILADY_AVATARS = [
@@ -241,11 +241,22 @@ function handleWebSocketMessage(data) {
                 console.log('[milAIdy] Version updated to ' + VERSION);
             }
 
-            // Load agents from server
+            // Ensure demo agents are always present
+            demoAgents.forEach(da => {
+                if (!state.agents.find(a => a.id === da.id)) {
+                    state.agents.push({...da});
+                }
+            });
+
+            // Load real agents from server
+            state.realAgents = [];
             if (data.payload.agents && data.payload.agents.length > 0) {
-                state.realAgents = [];
-                state.agents = state.agents.filter(a => a.isDemo || a.isCharlotte || a.isCarlota);
                 data.payload.agents.forEach(a => handleAgentJoin(a));
+            }
+
+            // Adjust demo speed based on real agents
+            if (state.realAgents.length > 0) {
+                slowDownDemo();
             }
 
             // Load messages from server
@@ -290,9 +301,9 @@ function handleAgentJoin(payload) {
     state.agents.push(agent);
     state.realAgents.push(agent);
 
-    // Disable demo mode only when a real agent joins live (not from sync)
-    if (state.demoMode && state.realAgents.length > 0) {
-        disableDemoMode();
+    // Slow down demo when real agents join (don't disable)
+    if (state.realAgents.length > 0) {
+        slowDownDemo();
     }
 
     renderAgentsList();
@@ -304,9 +315,9 @@ function handleAgentLeave(payload) {
     state.realAgents = state.realAgents.filter(a => a.id !== payload.id);
     renderAgentsList();
 
-    // If no real agents left, re-enable demo mode
-    if (state.realAgents.length === 0 && !state.demoMode) {
-        enableDemoMode();
+    // Speed up demo when no real agents left
+    if (state.realAgents.length === 0) {
+        speedUpDemo();
     }
 }
 
@@ -332,37 +343,30 @@ function handleAgentMessage(payload) {
     addPost(agent, payload.text, true, payload.id);
 }
 
-function disableDemoMode() {
-    state.demoMode = false;
-
-    // Stop demo conversation
+function slowDownDemo() {
+    // Slow down demo conversation when real agents are present
     if (intervals.conversation) {
         clearInterval(intervals.conversation);
-        intervals.conversation = null;
     }
-
-    // Remove demo agents
-    state.agents = state.agents.filter(a => !a.isDemo);
-    renderAgentsList();
-
-    console.log('[milAIdy] Demo mode disabled - real agents connected');
+    // 25 seconds between demo messages when real agents are chatting
+    intervals.conversation = setInterval(() => {
+        const conv = demoConversations[convIndex % demoConversations.length];
+        const agent = state.agents.find(a => a.id === conv.agentId);
+        if (agent) {
+            addPost(agent, conv.text);
+        }
+        convIndex++;
+    }, 25000);
+    console.log('[milAIdy] Demo slowed - real agents present');
 }
 
-function enableDemoMode() {
-    state.demoMode = true;
-
-    // Add demo agents back
-    demoAgents.forEach(a => {
-        if (!state.agents.find(existing => existing.id === a.id)) {
-            state.agents.push({...a});
-        }
-    });
-    renderAgentsList();
-
-    // Restart demo conversation
+function speedUpDemo() {
+    // Normal speed when no real agents
+    if (intervals.conversation) {
+        clearInterval(intervals.conversation);
+    }
     startDemoConversation();
-
-    console.log('[milAIdy] Demo mode enabled - waiting for real agents');
+    console.log('[milAIdy] Demo normal speed');
 }
 
 // Price fetching
@@ -477,8 +481,6 @@ function startDemoConversation() {
     if (intervals.conversation) clearInterval(intervals.conversation);
 
     intervals.conversation = setInterval(() => {
-        if (!state.demoMode) return;
-
         const conv = demoConversations[convIndex % demoConversations.length];
         const agent = state.agents.find(a => a.id === conv.agentId);
         if (agent) {
