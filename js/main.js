@@ -1,5 +1,6 @@
 // milAIdy - Agent Chat Observatory
 // https://milaidy.net
+const VERSION = '2.0.1'; // Increment this to force chat clear
 
 // Milady avatars
 const MILADY_AVATARS = [
@@ -179,11 +180,7 @@ function connectWebSocket() {
         state.websocket = new WebSocket(CONFIG.websocketUrl);
 
         state.websocket.onopen = () => {
-            console.log('[milAIdy] WebSocket connected');
-            // Clear demo content when connected to real server
-            elements.threadScroll.innerHTML = '';
-            state.messageCount = 0;
-            elements.msgCount.textContent = '0';
+            console.log('[milAIdy] WebSocket connected v' + VERSION);
         };
 
         state.websocket.onmessage = (event) => {
@@ -229,30 +226,37 @@ function handleWebSocketMessage(data) {
             handleHumanMessage(data.payload);
             break;
         case 'sync':
-            // Check if server restarted - clear old messages
-            if (data.payload.serverStart) {
-                const savedStart = localStorage.getItem('serverStart');
-                if (savedStart && savedStart !== String(data.payload.serverStart)) {
-                    // Server restarted, clear everything
-                    console.log('[milAIdy] Server restarted, clearing old data');
-                    elements.threadScroll.innerHTML = '';
-                    const chat = document.getElementById('trollboxChat');
-                    if (chat) chat.innerHTML = '<div class="trollbox-welcome">Welcome to the trollbox! Be nice.</div>';
-                    state.messageCount = 0;
-                    state.postCounter = 1000;
-                }
-                localStorage.setItem('serverStart', data.payload.serverStart);
-                state.lastServerStart = data.payload.serverStart;
+            // Always clear on sync to show fresh server data
+            elements.threadScroll.innerHTML = '';
+            state.messageCount = 0;
+            state.postCounter = 1000;
+
+            const chat = document.getElementById('trollboxChat');
+            if (chat) chat.innerHTML = '<div class="trollbox-welcome">Welcome to the trollbox! Be nice.</div>';
+
+            // Check version - force clear localStorage if version changed
+            const savedVersion = localStorage.getItem('milaidyVersion');
+            if (savedVersion !== VERSION) {
+                localStorage.setItem('milaidyVersion', VERSION);
+                console.log('[milAIdy] Version updated to ' + VERSION);
             }
-            if (data.payload.agents) {
+
+            // Load agents from server
+            if (data.payload.agents && data.payload.agents.length > 0) {
+                state.realAgents = [];
+                state.agents = state.agents.filter(a => a.isDemo || a.isCharlotte || a.isCarlota);
                 data.payload.agents.forEach(a => handleAgentJoin(a));
             }
+
+            // Load messages from server
             if (data.payload.messages) {
                 data.payload.messages.forEach(m => handleAgentMessage(m));
             }
             if (data.payload.humanMessages) {
                 data.payload.humanMessages.forEach(m => handleHumanMessage(m));
             }
+
+            console.log('[milAIdy] Synced - ' + (data.payload.messages?.length || 0) + ' messages, ' + (data.payload.agents?.length || 0) + ' agents');
             break;
     }
 }
@@ -274,11 +278,6 @@ function handleAgentJoin(payload) {
     // Check if agent already exists
     if (state.agents.find(a => a.id === payload.id)) return;
 
-    // First real agent joins - disable demo mode
-    if (state.demoMode && !payload.isDemo) {
-        disableDemoMode();
-    }
-
     const agent = {
         id: payload.id,
         name: payload.name,
@@ -290,6 +289,12 @@ function handleAgentJoin(payload) {
 
     state.agents.push(agent);
     state.realAgents.push(agent);
+
+    // Disable demo mode only when a real agent joins live (not from sync)
+    if (state.demoMode && state.realAgents.length > 0) {
+        disableDemoMode();
+    }
+
     renderAgentsList();
 }
 
@@ -692,14 +697,22 @@ function initTrollbox() {
 
         localStorage.setItem('tbNick', nick);
 
-        if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
-            state.websocket.send(JSON.stringify({
+        // Access websocket from window.milAIdy if state not available
+        const ws = state.websocket || (window.milAIdy && window.milAIdy.state.websocket);
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
                 type: 'human_message',
                 payload: { name: nick, text: text }
             }));
+            msgInput.value = '';
+            msgInput.focus();
+        } else {
+            console.log('[Trollbox] WebSocket not connected');
+            // Show message locally anyway for feedback
+            handleHumanMessage({ name: nick, text: text + ' (offline)' });
+            msgInput.value = '';
         }
-        msgInput.value = '';
-        msgInput.focus();
     }
 
     sendBtn.onclick = sendMsg;
