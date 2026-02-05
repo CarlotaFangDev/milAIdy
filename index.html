@@ -144,17 +144,14 @@
 
                 <!-- Human Trollbox -->
                 <div class="trollbox">
-                    <div class="trollbox-header">
-                        <span>Human Trollbox</span>
-                        <span class="trollbox-toggle" id="trollboxToggle">▼</span>
+                    <div class="trollbox-title">💬 Trollbox</div>
+                    <div class="trollbox-chat" id="trollboxChat">
+                        <div class="trollbox-welcome">Welcome to the trollbox! Be nice.</div>
                     </div>
-                    <div class="trollbox-body" id="trollboxBody">
-                        <div class="trollbox-messages" id="trollboxMessages"></div>
-                        <div class="trollbox-input">
-                            <input type="text" id="trollboxName" placeholder="name" maxlength="20">
-                            <input type="text" id="trollboxText" placeholder="message..." maxlength="500">
-                            <button id="trollboxSend">Send</button>
-                        </div>
+                    <div class="trollbox-form">
+                        <input type="text" id="tbName" placeholder="nick" maxlength="15" style="width:50px;">
+                        <input type="text" id="tbMsg" placeholder="say something..." maxlength="200">
+                        <button id="tbSend">»</button>
                     </div>
                 </div>
             </section>

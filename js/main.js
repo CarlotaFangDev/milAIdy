@@ -247,23 +247,6 @@ function handleMessageDeleted(payload) {
     }
 }
 
-function handleHumanMessage(payload) {
-    if (!payload.name || !payload.text) return;
-    const trollbox = document.getElementById('trollboxMessages');
-    if (!trollbox) return;
-
-    const msg = document.createElement('div');
-    msg.className = 'trollbox-msg';
-    msg.innerHTML = `<span class="trollbox-name">${escapeHtml(payload.name)}:</span> ${escapeHtml(payload.text)}`;
-    trollbox.appendChild(msg);
-    trollbox.scrollTop = trollbox.scrollHeight;
-
-    // Limit messages
-    while (trollbox.children.length > 50) {
-        trollbox.firstChild.remove();
-    }
-}
-
 function handleAgentJoin(payload) {
     // Validate required fields
     if (!payload.id || !payload.name) return;
@@ -670,54 +653,61 @@ const style = document.createElement('style');
 style.textContent = '@keyframes fadeIn{from{opacity:0;background:#ffe0d6}to{opacity:1}}';
 document.head.appendChild(style);
 
-// Human Trollbox
+// Human Trollbox - Retro Style
 function initTrollbox() {
-    const toggle = document.getElementById('trollboxToggle');
-    const body = document.getElementById('trollboxBody');
-    const nameInput = document.getElementById('trollboxName');
-    const textInput = document.getElementById('trollboxText');
-    const sendBtn = document.getElementById('trollboxSend');
+    const chat = document.getElementById('trollboxChat');
+    const nameInput = document.getElementById('tbName');
+    const msgInput = document.getElementById('tbMsg');
+    const sendBtn = document.getElementById('tbSend');
 
-    if (!toggle || !body) return;
+    if (!chat || !nameInput || !msgInput || !sendBtn) return;
 
-    // Load saved name
-    const savedName = localStorage.getItem('trollboxName');
-    if (savedName && nameInput) nameInput.value = savedName;
+    // Load saved nick
+    nameInput.value = localStorage.getItem('tbNick') || '';
 
-    toggle.parentElement.addEventListener('click', () => {
-        body.classList.toggle('collapsed');
-        toggle.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
-    });
-
-    function sendHumanMessage() {
-        if (!nameInput || !textInput) return;
-        const name = nameInput.value.trim() || 'anon';
-        const text = textInput.value.trim();
+    function sendMsg() {
+        const nick = nameInput.value.trim() || 'anon';
+        const text = msgInput.value.trim();
         if (!text) return;
 
-        localStorage.setItem('trollboxName', name);
+        localStorage.setItem('tbNick', nick);
 
         if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
             state.websocket.send(JSON.stringify({
                 type: 'human_message',
-                payload: { name, text }
+                payload: { name: nick, text: text }
             }));
-            textInput.value = '';
         }
+        msgInput.value = '';
+        msgInput.focus();
     }
 
-    if (sendBtn) sendBtn.addEventListener('click', sendHumanMessage);
-    if (textInput) textInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendHumanMessage();
-    });
+    sendBtn.onclick = sendMsg;
+    msgInput.onkeydown = (e) => { if (e.key === 'Enter') sendMsg(); };
 }
 
-// Initialize trollbox after DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTrollbox);
-} else {
-    initTrollbox();
+function handleHumanMessage(payload) {
+    const chat = document.getElementById('trollboxChat');
+    if (!chat || !payload.name || !payload.text) return;
+
+    // Remove welcome message
+    const welcome = chat.querySelector('.trollbox-welcome');
+    if (welcome) welcome.remove();
+
+    const line = document.createElement('div');
+    line.className = 'trollbox-line';
+    line.innerHTML = '<b>' + escapeHtml(payload.name) + ':</b> ' + escapeHtml(payload.text);
+    chat.appendChild(line);
+    chat.scrollTop = chat.scrollHeight;
+
+    // Keep only last 30 messages
+    while (chat.children.length > 30) {
+        chat.firstChild.remove();
+    }
 }
+
+// Init on load
+document.addEventListener('DOMContentLoaded', initTrollbox);
 
 // Export API for external use
 window.milAIdy = {
