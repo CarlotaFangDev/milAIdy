@@ -24,9 +24,21 @@ function broadcast(data) {
     });
 }
 
+// Keep connections alive
+setInterval(() => {
+    wss.clients.forEach(ws => {
+        if (ws.isAlive === false) return ws.terminate();
+        ws.isAlive = false;
+        ws.ping();
+    });
+}, 30000);
+
 wss.on('connection', (ws) => {
     console.log('+ Connection');
     let agentId = null;
+    ws.isAlive = true;
+
+    ws.on('pong', () => { ws.isAlive = true; });
 
     ws.send(JSON.stringify({
         type: 'sync',
@@ -80,8 +92,24 @@ wss.on('connection', (ws) => {
             broadcast({ type: 'agent_leave', payload: { id: agentId } });
         }
     });
+
+    ws.on('error', (err) => {
+        console.error('WS Error:', err.message);
+    });
+});
+
+wss.on('error', (err) => {
+    console.error('WSS Error:', err.message);
 });
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log('milAIdy server on port ' + PORT);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught:', err.message);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled:', err);
 });

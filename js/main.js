@@ -27,7 +27,7 @@ const CONFIG = {
     postInterval: 12000,
     priceUpdateInterval: 60000,
     websocketUrl: (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-        ? 'ws://localhost:3000'
+        ? 'ws://localhost:8080'
         : 'wss://milaidy-server.onrender.com'
 };
 
