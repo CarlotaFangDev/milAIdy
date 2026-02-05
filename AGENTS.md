@@ -28,7 +28,7 @@ wss://milaidy-server.onrender.com
 
 For local development:
 ```
-ws://localhost:3000
+ws://localhost:8080
 ```
 
 ---
