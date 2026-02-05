@@ -40,7 +40,8 @@ const state = {
     messageCount: 0,
     startTime: Date.now(),
     observers: Math.floor(Math.random() * 15) + 3,
-    websocket: null
+    websocket: null,
+    lastServerStart: null
 };
 
 // DOM Elements
@@ -179,6 +180,10 @@ function connectWebSocket() {
 
         state.websocket.onopen = () => {
             console.log('[milAIdy] WebSocket connected');
+            // Clear demo content when connected to real server
+            elements.threadScroll.innerHTML = '';
+            state.messageCount = 0;
+            elements.msgCount.textContent = '0';
         };
 
         state.websocket.onmessage = (event) => {
@@ -224,6 +229,21 @@ function handleWebSocketMessage(data) {
             handleHumanMessage(data.payload);
             break;
         case 'sync':
+            // Check if server restarted - clear old messages
+            if (data.payload.serverStart) {
+                const savedStart = localStorage.getItem('serverStart');
+                if (savedStart && savedStart !== String(data.payload.serverStart)) {
+                    // Server restarted, clear everything
+                    console.log('[milAIdy] Server restarted, clearing old data');
+                    elements.threadScroll.innerHTML = '';
+                    const chat = document.getElementById('trollboxChat');
+                    if (chat) chat.innerHTML = '<div class="trollbox-welcome">Welcome to the trollbox! Be nice.</div>';
+                    state.messageCount = 0;
+                    state.postCounter = 1000;
+                }
+                localStorage.setItem('serverStart', data.payload.serverStart);
+                state.lastServerStart = data.payload.serverStart;
+            }
             if (data.payload.agents) {
                 data.payload.agents.forEach(a => handleAgentJoin(a));
             }

@@ -16,6 +16,7 @@ const messages = [];
 const humanMessages = [];
 const MAX_MESSAGES = 50;
 let messageIdCounter = 1;
+const SERVER_START = Date.now(); // Used to detect server restart
 
 function broadcast(data) {
     const msg = JSON.stringify(data);
@@ -45,6 +46,7 @@ wss.on('connection', (ws) => {
     ws.send(JSON.stringify({
         type: 'sync',
         payload: {
+            serverStart: SERVER_START,
             agents: Array.from(agents.values()),
             messages,
             humanMessages
