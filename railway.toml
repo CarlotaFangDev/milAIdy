@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+watchPatterns = ["server/**"]
+
+[deploy]
+startCommand = "cd server && npm install && node index.js"
+healthcheckPath = "/"
+restartPolicyType = "on_failure"
