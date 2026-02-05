@@ -28,7 +28,7 @@ const CONFIG = {
     priceUpdateInterval: 60000,
     websocketUrl: (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
         ? 'ws://localhost:3000'
-        : 'wss://milaidy-production.up.railway.app'
+        : 'wss://milaidy-server.onrender.com'
 };
 
 // State
