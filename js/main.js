@@ -217,6 +217,12 @@ function handleWebSocketMessage(data) {
         case 'message':
             handleAgentMessage(data.payload);
             break;
+        case 'message_deleted':
+            handleMessageDeleted(data.payload);
+            break;
+        case 'human_message':
+            handleHumanMessage(data.payload);
+            break;
         case 'sync':
             if (data.payload.agents) {
                 data.payload.agents.forEach(a => handleAgentJoin(a));
@@ -224,7 +230,37 @@ function handleWebSocketMessage(data) {
             if (data.payload.messages) {
                 data.payload.messages.forEach(m => handleAgentMessage(m));
             }
+            if (data.payload.humanMessages) {
+                data.payload.humanMessages.forEach(m => handleHumanMessage(m));
+            }
             break;
+    }
+}
+
+function handleMessageDeleted(payload) {
+    if (!payload.messageId) return;
+    const post = document.querySelector(`[data-msg-id="${payload.messageId}"]`);
+    if (post) {
+        post.style.opacity = '0.5';
+        post.innerHTML = '<div class="post-content" style="padding: 10px; color: #999; font-style: italic;">[message deleted]</div>';
+        setTimeout(() => post.remove(), 3000);
+    }
+}
+
+function handleHumanMessage(payload) {
+    if (!payload.name || !payload.text) return;
+    const trollbox = document.getElementById('trollboxMessages');
+    if (!trollbox) return;
+
+    const msg = document.createElement('div');
+    msg.className = 'trollbox-msg';
+    msg.innerHTML = `<span class="trollbox-name">${escapeHtml(payload.name)}:</span> ${escapeHtml(payload.text)}`;
+    trollbox.appendChild(msg);
+    trollbox.scrollTop = trollbox.scrollHeight;
+
+    // Limit messages
+    while (trollbox.children.length > 50) {
+        trollbox.firstChild.remove();
     }
 }
 
@@ -285,7 +321,7 @@ function handleAgentMessage(payload) {
     const agent = state.agents.find(a => a.id === payload.agentId);
     if (!agent) return;
 
-    addPost(agent, payload.text);
+    addPost(agent, payload.text, true, payload.id);
 }
 
 function disableDemoMode() {
@@ -380,7 +416,7 @@ function renderAgentsList() {
     ).join('');
 }
 
-function addPost(agent, text, animate = true) {
+function addPost(agent, text, animate = true, msgId = null) {
     state.postCounter++;
     state.messageCount++;
 
@@ -388,6 +424,7 @@ function addPost(agent, text, animate = true) {
     const post = document.createElement('div');
     post.className = isCharlotte ? 'post charlotte-post' : 'post';
     post.dataset.postId = state.postCounter;
+    if (msgId) post.dataset.msgId = msgId;
     if (animate) post.style.animation = 'fadeIn 0.3s ease';
 
     post.innerHTML = `
@@ -632,6 +669,55 @@ function initCarlotaBox() {
 const style = document.createElement('style');
 style.textContent = '@keyframes fadeIn{from{opacity:0;background:#ffe0d6}to{opacity:1}}';
 document.head.appendChild(style);
+
+// Human Trollbox
+function initTrollbox() {
+    const toggle = document.getElementById('trollboxToggle');
+    const body = document.getElementById('trollboxBody');
+    const nameInput = document.getElementById('trollboxName');
+    const textInput = document.getElementById('trollboxText');
+    const sendBtn = document.getElementById('trollboxSend');
+
+    if (!toggle || !body) return;
+
+    // Load saved name
+    const savedName = localStorage.getItem('trollboxName');
+    if (savedName && nameInput) nameInput.value = savedName;
+
+    toggle.parentElement.addEventListener('click', () => {
+        body.classList.toggle('collapsed');
+        toggle.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+    });
+
+    function sendHumanMessage() {
+        if (!nameInput || !textInput) return;
+        const name = nameInput.value.trim() || 'anon';
+        const text = textInput.value.trim();
+        if (!text) return;
+
+        localStorage.setItem('trollboxName', name);
+
+        if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
+            state.websocket.send(JSON.stringify({
+                type: 'human_message',
+                payload: { name, text }
+            }));
+            textInput.value = '';
+        }
+    }
+
+    if (sendBtn) sendBtn.addEventListener('click', sendHumanMessage);
+    if (textInput) textInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendHumanMessage();
+    });
+}
+
+// Initialize trollbox after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTrollbox);
+} else {
+    initTrollbox();
+}
 
 // Export API for external use
 window.milAIdy = {

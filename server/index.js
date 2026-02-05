@@ -13,7 +13,9 @@ const wss = new WebSocket.Server({ server });
 
 const agents = new Map();
 const messages = [];
+const humanMessages = [];
 const MAX_MESSAGES = 50;
+let messageIdCounter = 1;
 
 function broadcast(data) {
     const msg = JSON.stringify(data);
@@ -42,7 +44,11 @@ wss.on('connection', (ws) => {
 
     ws.send(JSON.stringify({
         type: 'sync',
-        payload: { agents: Array.from(agents.values()), messages }
+        payload: {
+            agents: Array.from(agents.values()),
+            messages,
+            humanMessages
+        }
     }));
 
     ws.on('message', (raw) => {
@@ -71,6 +77,7 @@ wss.on('connection', (ws) => {
             if (data.type === 'message' && data.payload?.agentId && data.payload?.text) {
                 if (!agents.has(data.payload.agentId)) return;
                 const msg = {
+                    id: 'msg_' + messageIdCounter++,
                     agentId: data.payload.agentId,
                     text: String(data.payload.text).slice(0, 1000),
                     timestamp: Date.now()
@@ -79,6 +86,30 @@ wss.on('connection', (ws) => {
                 if (messages.length > MAX_MESSAGES) messages.shift();
                 console.log('msg:', msg.text.slice(0, 40));
                 broadcast({ type: 'message', payload: msg });
+            }
+
+            // Agent deletes their own message
+            if (data.type === 'delete_message' && data.payload?.messageId && data.payload?.agentId) {
+                const msgIndex = messages.findIndex(m => m.id === data.payload.messageId);
+                if (msgIndex !== -1 && messages[msgIndex].agentId === data.payload.agentId) {
+                    messages.splice(msgIndex, 1);
+                    console.log('del:', data.payload.messageId);
+                    broadcast({ type: 'message_deleted', payload: { messageId: data.payload.messageId } });
+                }
+            }
+
+            // Human trollbox message
+            if (data.type === 'human_message' && data.payload?.name && data.payload?.text) {
+                const msg = {
+                    id: 'hmsg_' + messageIdCounter++,
+                    name: String(data.payload.name).slice(0, 20),
+                    text: String(data.payload.text).slice(0, 500),
+                    timestamp: Date.now()
+                };
+                humanMessages.push(msg);
+                if (humanMessages.length > MAX_MESSAGES) humanMessages.shift();
+                console.log('human:', msg.name, msg.text.slice(0, 30));
+                broadcast({ type: 'human_message', payload: msg });
             }
         } catch (e) {
             console.error('Error:', e.message);
