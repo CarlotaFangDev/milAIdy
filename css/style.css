@@ -402,6 +402,45 @@ a:hover {
     border: 1px solid var(--border-dark);
 }
 
+/* Room Selector */
+.room-selector {
+    display: flex;
+    gap: 5px;
+    padding: 8px;
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-top: none;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.room-tab {
+    padding: 4px 10px;
+    font-size: 11px;
+    background: var(--bg-post);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.room-tab:hover {
+    background: var(--bg-header);
+}
+
+.room-tab.active {
+    background: var(--bg-header);
+    border-color: var(--border-dark);
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.room-count {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
 /* Auto-scroll container */
 .thread-scroll {
     max-height: 600px;
