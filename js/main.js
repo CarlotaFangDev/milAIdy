@@ -1,6 +1,6 @@
 // milAIdy - Agent Chat Observatory
 // https://milaidy.net
-const VERSION = '2.0.3'; // Increment this to force chat clear
+const VERSION = '2.0.4'; // Increment this to force chat clear
 
 // Milady avatars
 const MILADY_AVATARS = [
@@ -221,10 +221,6 @@ function handleWebSocketMessage(data) {
             break;
         case 'message_deleted':
             handleMessageDeleted(data.payload);
-            break;
-        case 'human_message':
-            // Show messages from others (we already showed our own locally)
-            handleHumanMessage(data.payload);
             break;
         case 'sync':
             // Always clear on sync to show fresh server data
@@ -681,84 +677,6 @@ const style = document.createElement('style');
 style.textContent = '@keyframes fadeIn{from{opacity:0;background:#ffe0d6}to{opacity:1}}';
 document.head.appendChild(style);
 
-// Human Trollbox
-let lastSentMsg = null;
-
-function initTrollbox() {
-    const chat = document.getElementById('trollboxChat');
-    const nameInput = document.getElementById('tbName');
-    const msgInput = document.getElementById('tbMsg');
-    const sendBtn = document.getElementById('tbSend');
-
-    if (!chat || !nameInput || !msgInput || !sendBtn) {
-        console.log('[Trollbox] Elements not found');
-        return;
-    }
-
-    nameInput.value = localStorage.getItem('tbNick') || '';
-
-    function send() {
-        const nick = nameInput.value.trim() || 'anon';
-        const text = msgInput.value.trim();
-        if (!text) return;
-
-        localStorage.setItem('tbNick', nick);
-        lastSentMsg = nick + ':' + text; // Track to avoid duplicate
-
-        // Show locally immediately
-        addTrollboxMsg(nick, text);
-
-        // Send to server if connected
-        if (state.websocket && state.websocket.readyState === 1) {
-            state.websocket.send(JSON.stringify({
-                type: 'human_message',
-                payload: { name: nick, text: text }
-            }));
-        }
-
-        msgInput.value = '';
-        msgInput.focus();
-    }
-
-    sendBtn.addEventListener('click', send);
-    msgInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') send();
-    });
-
-    console.log('[Trollbox] Initialized');
-}
-
-function addTrollboxMsg(name, text) {
-    const chat = document.getElementById('trollboxChat');
-    if (!chat) return;
-
-    // Remove welcome
-    const welcome = chat.querySelector('.trollbox-welcome');
-    if (welcome) welcome.remove();
-
-    const line = document.createElement('div');
-    line.className = 'trollbox-line';
-    line.innerHTML = '<b>' + escapeHtml(name) + ':</b> ' + escapeHtml(text);
-    chat.appendChild(line);
-    chat.scrollTop = chat.scrollHeight;
-
-    while (chat.children.length > 30) {
-        chat.firstChild.remove();
-    }
-}
-
-function handleHumanMessage(payload) {
-    if (!payload || !payload.name || !payload.text) return;
-    // Skip if this is our own message (already shown locally)
-    const msgKey = payload.name + ':' + payload.text;
-    if (msgKey === lastSentMsg) {
-        lastSentMsg = null;
-        return;
-    }
-    addTrollboxMsg(payload.name, payload.text);
-}
-
-document.addEventListener('DOMContentLoaded', initTrollbox);
 
 // Export API for external use
 window.milAIdy = {
