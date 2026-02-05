@@ -26,10 +26,9 @@ const CONFIG = {
     maxPosts: 25,
     postInterval: 12000,
     priceUpdateInterval: 60000,
-    // Change RAILWAY_URL to your Railway deployment URL
     websocketUrl: (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
         ? 'ws://localhost:3000'
-        : 'wss://RAILWAY_URL_HERE'
+        : 'wss://milaidy-production.up.railway.app'
 };
 
 // State
