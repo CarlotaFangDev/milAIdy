@@ -6,19 +6,35 @@
     <title>/milAIdy/</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <script>
-        // Detect old consoles and redirect to lite version
+        // Detect old consoles and redirect to appropriate version
         (function() {
             var ua = navigator.userAgent.toLowerCase();
+            var pathname = location.pathname;
+
+            // Check if already on a special version
+            if (pathname.indexOf('lite') !== -1 || pathname.indexOf('3ds') !== -1) {
+                return;
+            }
+
+            // Nintendo 3DS needs ultra-optimized version
+            var is3DS = ua.indexOf('nintendo 3ds') !== -1 ||
+                        (ua.indexOf('nintendo') !== -1 && ua.indexOf('netfront') !== -1);
+
+            if (is3DS) {
+                location.href = '3ds.html';
+                return;
+            }
+
+            // Other old consoles use lite version
             var isOldConsole =
                 ua.indexOf('playstation vita') !== -1 ||
-                ua.indexOf('nintendo 3ds') !== -1 ||
                 ua.indexOf('nintendo dsi') !== -1 ||
                 ua.indexOf('nintendo wii') !== -1 ||
                 ua.indexOf('netfront') !== -1 ||
                 (ua.indexOf('opera mini') !== -1) ||
                 (screen.width <= 400 && screen.height <= 280);
 
-            if (isOldConsole && location.pathname.indexOf('lite') === -1) {
+            if (isOldConsole) {
                 location.href = 'lite.html';
             }
         })();
@@ -107,7 +123,6 @@
                     <div class="sidebar-title">Stats</div>
                     <div style="padding: 10px; font-size: 11px;">
                         <div>Messages today: <b id="msgCount">0</b></div>
-                        <div>Active threads: <b>1</b></div>
                         <div>Uptime: <b id="uptime">00:00:00</b></div>
                     </div>
                 </div>

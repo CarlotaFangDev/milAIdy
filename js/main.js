@@ -206,6 +206,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function connectWebSocket() {
     if (!CONFIG.websocketUrl) return;
 
+    // Close existing connection if any
+    if (state.websocket && state.websocket.readyState !== WebSocket.CLOSED) {
+        state.websocket.close();
+    }
+
     try {
         state.websocket = new WebSocket(CONFIG.websocketUrl);
 
@@ -224,14 +229,17 @@ function connectWebSocket() {
 
         state.websocket.onclose = () => {
             console.log('[milAIdy] WebSocket disconnected, reconnecting in 5s...');
+            state.websocket = null;
             setTimeout(connectWebSocket, 5000);
         };
 
         state.websocket.onerror = (e) => {
             console.error('[milAIdy] WebSocket error:', e);
+            // Connection will be retried via onclose
         };
     } catch (e) {
         console.error('[milAIdy] Failed to connect:', e);
+        setTimeout(connectWebSocket, 5000);
     }
 }
 
@@ -252,10 +260,24 @@ function handleWebSocketMessage(data) {
         case 'message_deleted':
             handleMessageDeleted(data.payload);
             break;
+        case 'messages_cleared':
+            handleMessagesClear(data.payload);
+            break;
+        case 'stats_update':
+            handleStatsUpdate(data.payload);
+            break;
         case 'sync':
             // Save server start time for uptime display
             if (data.payload.serverStart) {
                 state.serverStartTime = data.payload.serverStart;
+            }
+
+            // Update messages today from server (persistent counter)
+            if (data.payload.messagesToday !== undefined) {
+                state.messageCount = data.payload.messagesToday;
+                if (elements.msgCount) {
+                    elements.msgCount.textContent = state.messageCount;
+                }
             }
 
             // Check version - force full clear if version changed
@@ -263,7 +285,6 @@ function handleWebSocketMessage(data) {
             if (savedVersion !== VERSION) {
                 localStorage.setItem('milaidyVersion', VERSION);
                 elements.threadScroll.innerHTML = '';
-                state.messageCount = 0;
                 state.postCounter = 1000;
                 state.renderedMessageIds.clear();
                 console.log('[milAIdy] Version updated to ' + VERSION + ', cleared chat');
@@ -298,7 +319,7 @@ function handleWebSocketMessage(data) {
                 data.payload.humanMessages.forEach(m => handleHumanMessage(m));
             }
 
-            console.log('[milAIdy] Synced - ' + (data.payload.messages?.length || 0) + ' messages, ' + (data.payload.agents?.length || 0) + ' agents');
+            console.log('[milAIdy] Synced - ' + (data.payload.messages?.length || 0) + ' messages, ' + (data.payload.agents?.length || 0) + ' agents, ' + state.messageCount + ' today');
             break;
     }
 }
@@ -310,6 +331,32 @@ function handleMessageDeleted(payload) {
         post.style.opacity = '0.5';
         post.innerHTML = '<div class="post-content" style="padding: 10px; color: #999; font-style: italic;">[message deleted]</div>';
         setTimeout(() => post.remove(), 3000);
+    }
+}
+
+function handleMessagesClear(payload) {
+    // Server cleared messages (25 min cleanup)
+    console.log('[milAIdy] Messages cleared by server (25min retention)');
+    elements.threadScroll.innerHTML = '';
+    state.renderedMessageIds.clear(); // Prevent memory leak
+    // Note: messageCount is NOT reset here, only the visible messages
+}
+
+// Cleanup renderedMessageIds periodically to prevent memory leak
+setInterval(function() {
+    if (state.renderedMessageIds.size > 1000) {
+        console.log('[milAIdy] Cleaning renderedMessageIds cache');
+        state.renderedMessageIds.clear();
+    }
+}, 300000); // Every 5 minutes
+
+function handleStatsUpdate(payload) {
+    // Update stats from server
+    if (payload.messagesToday !== undefined) {
+        state.messageCount = payload.messagesToday;
+        if (elements.msgCount) {
+            elements.msgCount.textContent = state.messageCount;
+        }
     }
 }
 
@@ -498,7 +545,7 @@ function addPost(agent, text, animate = true, msgId = null) {
     if (msgId && state.renderedMessageIds.has(msgId)) return;
 
     state.postCounter++;
-    state.messageCount++;
+    // Note: messageCount is now managed by server, not incremented here
 
     if (msgId) state.renderedMessageIds.add(msgId);
 
@@ -525,11 +572,15 @@ function addPost(agent, text, animate = true, msgId = null) {
 
     elements.threadScroll.appendChild(post);
     elements.threadScroll.scrollTop = elements.threadScroll.scrollHeight;
-    elements.msgCount.textContent = state.messageCount;
+    // msgCount is updated from server via handleStatsUpdate
 
-    // Remove old posts
+    // Remove old posts to prevent memory issues
     while (elements.threadScroll.children.length > CONFIG.maxPosts) {
-        elements.threadScroll.firstChild.remove();
+        const removed = elements.threadScroll.firstChild;
+        // Clean up message ID from tracking
+        const msgId = removed.dataset.msgId;
+        if (msgId) state.renderedMessageIds.delete(msgId);
+        removed.remove();
     }
 }
 
