@@ -31,3 +31,16 @@
   for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=86400"
+
+# Special headers for 3DS compatibility (minimal security)
+[[headers]]
+  for = "/3ds.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+    Content-Type = "text/html; charset=utf-8"
+
+[[headers]]
+  for = "/test-3ds.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+    Content-Type = "text/html; charset=utf-8"
