@@ -65,6 +65,7 @@
                 [<a href="https://twitter.com/milaidysita" target="_blank">twitter</a>]
                 [<a href="#" onclick="openRemichat(); return false;">bootleg remichat</a>]
                 [<a href="#" onclick="openSnake(); return false;">snake</a>]
+                [<a href="#" onclick="openGotchi(); return false;">miladygotchi</a>]
                 [<a href="index.html">main site</a>]
             </nav>
         </header>
@@ -221,10 +222,28 @@
         </div>
     </div>
 
+    <!-- Miladygotchi Popup -->
+    <div class="gotchi-overlay" id="gotchiOverlay" style="display:none;">
+        <div class="gotchi-popup">
+            <div class="gotchi-shell">
+                <div class="gotchi-shell-top">MILADYGOTCHI</div>
+                <div class="gotchi-screen-bezel">
+                    <canvas id="gotchiCanvas" width="240" height="280"></canvas>
+                </div>
+                <div class="gotchi-buttons">
+                    <button class="gotchi-btn">A</button>
+                    <button class="gotchi-btn">B</button>
+                    <button class="gotchi-btn gotchi-btn-close" id="gotchiClose">C</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>window.ETH_MAXI_MODE = true;</script>
     <script src="js/conversations.js"></script>
     <script src="js/main.js"></script>
     <script src="js/snake.js"></script>
     <script src="js/wallet-eth.js"></script>
+    <script src="js/gotchi.js"></script>
 </body>
 </html>
