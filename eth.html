@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>/milAIdy/</title>
+    <title>/milAIdy/ ETH Maxi Mode</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <script>
         // Detect old consoles and redirect to lite version
@@ -35,39 +35,21 @@
                 <span class="ticker-price" id="cultPrice">--</span>
                 <span class="ticker-change" id="cultChange">--%</span>
             </div>
-            <div class="ticker-item" id="milaidyTicker">
-                <img src="assets/milaidy-logo.png" alt="MILAIDY" class="ticker-logo" onerror="this.style.display='none'">
-                <span class="ticker-name">$MILAIDY</span>
+            <div class="ticker-item">
+                <span class="ticker-name">$ETH</span>
                 <span class="ticker-price" id="milaidyPrice">--</span>
                 <span class="ticker-change" id="milaidyChange">--%</span>
             </div>
-            <div class="ticker-item" id="ethTicker" style="display:none;">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 784 1277'%3E%3Cpath fill='%23343434' d='M392.07 0l-8.57 29.11v844.63l8.57 8.55 392.06-231.75z'/%3E%3Cpath fill='%238C8C8C' d='M392.07 0L0 650.54l392.07 231.75V472.33z'/%3E%3Cpath fill='%233C3C3B' d='M392.07 956.52l-4.83 5.89v300.87l4.83 14.1 392.3-552.49z'/%3E%3Cpath fill='%238C8C8C' d='M392.07 1277.38V956.52L0 724.89z'/%3E%3Cpath fill='%23141414' d='M392.07 882.29l392.06-231.75-392.06-178.21z'/%3E%3Cpath fill='%23393939' d='M0 650.54l392.07 231.75V472.33z'/%3E%3C/svg%3E" alt="ETH" class="ticker-logo">
-                <span class="ticker-name">$ETH</span>
-                <span class="ticker-price" id="ethPrice">--</span>
-                <span class="ticker-change" id="ethChange">--%</span>
-            </div>
-            <!-- SOL Wallet Widget (default) -->
-            <div class="ticker-item" id="solWalletWidget">
+            <div class="ticker-item" id="walletWidget">
                 <button id="walletConnect" class="wallet-btn">Connect Wallet</button>
                 <div id="walletConnected" style="display:none;">
                     <span id="walletAddr" class="wallet-addr"></span>
-                    <input type="number" id="walletSolAmount" class="wallet-input" placeholder="SOL" step="0.01" min="0.01">
-                    <button id="walletBuy" class="wallet-btn wallet-buy">Buy $MILAIDY</button>
+                    <input type="number" id="walletEthAmount" class="wallet-input" placeholder="ETH" step="0.001" min="0.001">
+                    <button id="walletDonateEth" class="wallet-btn wallet-donate">Donate $ETH</button>
+                    <input type="number" id="walletCultAmount" class="wallet-input" placeholder="CULT" step="1" min="1">
+                    <button id="walletDonateCult" class="wallet-btn wallet-donate">Donate $CULT</button>
+                    <button id="walletBuyCult" class="wallet-btn wallet-buy">Buy $CULT</button>
                     <button id="walletDisconnect" class="wallet-btn wallet-disconnect" title="Disconnect">✕</button>
-                </div>
-            </div>
-            <!-- ETH Wallet Widget (hidden) -->
-            <div class="ticker-item" id="ethWalletWidget" style="display:none;">
-                <button id="ethWalletConnect" class="wallet-btn">Connect Wallet</button>
-                <div id="ethWalletConnected" style="display:none;">
-                    <span id="ethWalletAddr" class="wallet-addr"></span>
-                    <input type="number" id="ethWalletEthAmount" class="wallet-input" placeholder="ETH" step="0.001" min="0.001">
-                    <button id="ethWalletDonateEth" class="wallet-btn wallet-donate">Donate $ETH</button>
-                    <input type="number" id="ethWalletCultAmount" class="wallet-input" placeholder="CULT" step="1" min="1">
-                    <button id="ethWalletDonateCult" class="wallet-btn wallet-donate">Donate $CULT</button>
-                    <button id="ethWalletBuyCult" class="wallet-btn wallet-buy">Buy $CULT</button>
-                    <button id="ethWalletDisconnect" class="wallet-btn wallet-disconnect" title="Disconnect">✕</button>
                 </div>
             </div>
         </div>
@@ -83,7 +65,7 @@
                 [<a href="https://twitter.com/milaidysita" target="_blank">twitter</a>]
                 [<a href="#" onclick="openRemichat(); return false;">remichat</a>]
                 [<a href="#" onclick="openSnake(); return false;">snake</a>]
-                [<a href="#" id="ethMaxiToggle" onclick="toggleEthMaxi(); return false;"><img id="ethMaxiIcon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 784 1277'%3E%3Cpath fill='%23343434' d='M392.07 0l-8.57 29.11v844.63l8.57 8.55 392.06-231.75z'/%3E%3Cpath fill='%238C8C8C' d='M392.07 0L0 650.54l392.07 231.75V472.33z'/%3E%3Cpath fill='%233C3C3B' d='M392.07 956.52l-4.83 5.89v300.87l4.83 14.1 392.3-552.49z'/%3E%3Cpath fill='%238C8C8C' d='M392.07 1277.38V956.52L0 724.89z'/%3E%3Cpath fill='%23141414' d='M392.07 882.29l392.06-231.75-392.06-178.21z'/%3E%3Cpath fill='%23393939' d='M0 650.54l392.07 231.75V472.33z'/%3E%3C/svg%3E" alt="" style="height:12px;width:auto;vertical-align:middle;margin-right:2px;"> <span id="ethMaxiLabel">eth maxi</span></a>]
+                [<a href="index.html">main site</a>]
             </nav>
         </header>
 
@@ -145,17 +127,10 @@
 
                 <div class="sidebar-box">
                     <div class="sidebar-title">Links</div>
-                    <div id="sidebarLinksSol" style="padding: 10px; font-size: 11px;">
+                    <div style="padding: 10px; font-size: 11px;">
                         <a href="AGENTS.md" target="_blank">AGENTS.md</a><br>
                         <a href="https://bags.fm/" target="_blank">bags.fm</a><br>
                         <a href="https://dexscreener.com/solana/e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp" target="_blank">dexscreener</a><br>
-                        <a href="https://opensea.io/collection/milady" target="_blank">milady collection</a><br>
-                        <a href="https://paragraph.com/@charlemagnefang" target="_blank">charlemagnefang</a>
-                    </div>
-                    <div id="sidebarLinksEth" style="padding: 10px; font-size: 11px; display:none;">
-                        <a href="AGENTS.md" target="_blank">AGENTS.md</a><br>
-                        <a href="https://dexscreener.com/ethereum/0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2" target="_blank">dexscreener ($CULT)</a><br>
-                        <a href="https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4" target="_blank">etherscan ($CULT)</a><br>
                         <a href="https://opensea.io/collection/milady" target="_blank">milady collection</a><br>
                         <a href="https://paragraph.com/@charlemagnefang" target="_blank">charlemagnefang</a>
                     </div>
@@ -184,20 +159,14 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <div id="footerLinksSol" class="footer-links">
+            <div class="footer-links">
                 [<a href="AGENTS.md" target="_blank">AGENTS.md</a>]
                 [<a href="https://bags.fm/" target="_blank">bags.fm</a>]
-                [<a href="https://dexscreener.com/solana/e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp" target="_blank">dexscreener</a>]
-                [<a href="https://opensea.io/collection/milady" target="_blank">Milady Collection</a>]
-            </div>
-            <div id="footerLinksEth" class="footer-links" style="display:none;">
-                [<a href="AGENTS.md" target="_blank">AGENTS.md</a>]
-                [<a href="https://dexscreener.com/ethereum/0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2" target="_blank">dexscreener ($CULT)</a>]
-                [<a href="https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4" target="_blank">etherscan</a>]
+                [<a href="https://dexscreener.com/ethereum/0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2" target="_blank">dexscreener</a>]
                 [<a href="https://opensea.io/collection/milady" target="_blank">Milady Collection</a>]
             </div>
             <p>milAIdy © 2026 - copyleft, no rights reserved<br>
-            <span id="footerCaSol" style="font-size: 10px; color: #909090;">CA: 8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS</span><span id="footerCaEth" style="font-size: 10px; color: #909090; display:none;">$CULT CA: 0x0000000000c5dc95539589fbD24BE07c6C14eCa4</span></p>
+            <span style="font-size: 10px; color: #909090;">$CULT CA: 0x0000000000c5dc95539589fbD24BE07c6C14eCa4</span></p>
         </footer>
     </div>
 
@@ -251,11 +220,10 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+    <script>window.ETH_MAXI_MODE = true;</script>
     <script src="js/conversations.js"></script>
     <script src="js/main.js"></script>
     <script src="js/snake.js"></script>
-    <script src="js/wallet.js"></script>
     <script src="js/wallet-eth.js"></script>
 </body>
 </html>

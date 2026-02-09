@@ -9,7 +9,7 @@
     let walletPublicKey = null;
 
     function initWallet() {
-        const widget = document.getElementById('walletWidget');
+        const widget = document.getElementById('solWalletWidget') || document.getElementById('walletWidget');
         if (!widget) return;
 
         // Try auto-reconnect
