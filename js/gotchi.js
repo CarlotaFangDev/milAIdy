@@ -489,15 +489,31 @@
     }
 
     function openGotchi() {
+        console.log('[gotchi] openGotchi called');
         const overlay = document.getElementById('gotchiOverlay');
-        if (!overlay) return;
+        if (!overlay) { console.error('[gotchi] overlay not found!'); return; }
         overlay.style.display = 'flex';
+
+        // Init canvas if not done yet
+        if (!canvas) {
+            canvas = document.getElementById('gotchiCanvas');
+            if (canvas) {
+                ctx = canvas.getContext('2d');
+                canvas.width = W;
+                canvas.height = H;
+                ctx.imageSmoothingEnabled = false;
+                canvas.addEventListener('click', handleClick);
+            }
+        }
 
         // Load pet
         pet = loadPet();
         if (pet) applyTimeDecay();
 
-        if (!animFrame) render();
+        console.log('[gotchi] starting render, pet:', pet ? pet.name : 'none');
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = null;
+        render();
     }
 
     function closeGotchi() {
@@ -507,10 +523,22 @@
     }
 
     window.openGotchi = openGotchi;
+    console.log('[gotchi] script loaded, openGotchi exposed');
+
+    // Init close button and key handler on load
+    function initGotchiEvents() {
+        var close = document.getElementById('gotchiClose');
+        if (close) close.addEventListener('click', closeGotchi);
+        var overlay = document.getElementById('gotchiOverlay');
+        if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) closeGotchi(); });
+        document.addEventListener('keydown', handleKey);
+        blinkLoop();
+        console.log('[gotchi] events initialized');
+    }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initGotchi);
+        document.addEventListener('DOMContentLoaded', initGotchiEvents);
     } else {
-        initGotchi();
+        initGotchiEvents();
     }
 })();

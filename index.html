@@ -49,13 +49,7 @@
             </div>
             <!-- SOL Wallet Widget (default) -->
             <div class="ticker-item" id="solWalletWidget">
-                <button id="walletConnect" class="wallet-btn">Connect Wallet</button>
-                <div id="walletConnected" style="display:none;">
-                    <span id="walletAddr" class="wallet-addr"></span>
-                    <input type="number" id="walletSolAmount" class="wallet-input" placeholder="SOL" step="0.01" min="0.01">
-                    <button id="walletBuy" class="wallet-btn wallet-buy">Buy $MILAIDY</button>
-                    <button id="walletDisconnect" class="wallet-btn wallet-disconnect" title="Disconnect">✕</button>
-                </div>
+                <button id="walletBuy" class="wallet-btn wallet-buy">Buy $MILAIDY</button>
             </div>
             <!-- ETH Wallet Widget (hidden) -->
             <div class="ticker-item" id="ethWalletWidget" style="display:none;">
@@ -270,12 +264,12 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
     <script src="js/conversations.js"></script>
     <script src="js/main.js"></script>
     <script src="js/snake.js"></script>
+    <script src="js/gotchi.js"></script>
+    <script src="https://plugin.jup.ag/plugin-v1.js" data-preload defer></script>
     <script src="js/wallet.js"></script>
     <script src="js/wallet-eth.js"></script>
-    <script src="js/gotchi.js"></script>
 </body>
 </html>
