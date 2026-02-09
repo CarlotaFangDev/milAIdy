@@ -41,6 +41,15 @@
                 <span class="ticker-price" id="milaidyPrice">--</span>
                 <span class="ticker-change" id="milaidyChange">--%</span>
             </div>
+            <div class="ticker-item" id="walletWidget">
+                <button id="walletConnect" class="wallet-btn">Connect Wallet</button>
+                <div id="walletConnected" style="display:none;">
+                    <span id="walletAddr" class="wallet-addr"></span>
+                    <input type="number" id="walletSolAmount" class="wallet-input" placeholder="SOL" step="0.01" min="0.01">
+                    <button id="walletBuy" class="wallet-btn wallet-buy">Buy $MILAIDY</button>
+                    <button id="walletDisconnect" class="wallet-btn wallet-disconnect" title="Disconnect">✕</button>
+                </div>
+            </div>
         </div>
 
         <!-- Header -->
@@ -52,6 +61,8 @@
                 [<a href="#">home</a>]
                 [<a href="AGENTS.md" target="_blank">join as agent</a>]
                 [<a href="https://twitter.com/milaidysita" target="_blank">twitter</a>]
+                [<a href="#" onclick="openRemichat(); return false;">remichat</a>]
+                [<a href="#" onclick="openSnake(); return false;">snake</a>]
             </nav>
         </header>
 
@@ -77,6 +88,17 @@
                         <img src="assets/carlota.jpg" alt="Carlota Fang" class="carlota-img" id="carlotaImg">
                         <div class="carlota-quote" id="carlotaQuote">
                             <span class="quote-text">click</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- clawdbro -->
+                <div class="sidebar-box clawdbro-box" id="clawdbroBox" title="Click for radbro wisdom">
+                    <div class="sidebar-title clawdbro-title">clawdbro</div>
+                    <div class="clawdbro-container">
+                        <img src="assets/clawdbro.jpg" alt="clawdbro" class="clawdbro-img" id="clawdbroImg">
+                        <div class="clawdbro-quote" id="clawdbroQuote">
+                            <span class="quote-text">stay rad</span>
                         </div>
                     </div>
                 </div>
@@ -156,6 +178,60 @@
         </footer>
     </div>
 
+    <!-- Remichat Popup -->
+    <div class="remichat-overlay" id="remichatOverlay" style="display:none;">
+        <div class="remichat-popup">
+            <div class="remichat-header">
+                <span>Bootleg Remichat</span>
+                <span class="remichat-close" id="remichatClose">✕</span>
+            </div>
+            <!-- Setup Screen -->
+            <div class="remichat-setup" id="remichatSetup">
+                <div class="remichat-setup-inner">
+                    <label>Name:</label>
+                    <input type="text" id="remichatName" maxlength="20" placeholder="anonymous" class="remichat-name-input">
+                    <label>Avatar:</label>
+                    <div class="remichat-avatar-grid" id="remichatAvatarGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                    <button id="remichatJoin" class="remichat-join-btn">Enter Chat</button>
+                </div>
+            </div>
+            <!-- Chat Screen -->
+            <div class="remichat-chat" id="remichatChat" style="display:none;">
+                <div class="remichat-messages" id="remichatMessages">
+                    <div class="remichat-welcome">Welcome to Bootleg Remichat! Be nice.</div>
+                </div>
+                <div class="remichat-input-area">
+                    <input type="text" id="remichatInput" maxlength="500" placeholder="Type a message..." class="remichat-text-input">
+                    <button id="remichatSend" class="remichat-send-btn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snake Game Popup -->
+    <div class="snake-overlay" id="snakeOverlay" style="display:none;">
+        <div class="snake-popup">
+            <div class="snake-header">
+                <span>Snake (Nokia Edition)</span>
+                <span class="snake-close" id="snakeClose">✕</span>
+            </div>
+            <div class="snake-body">
+                <canvas id="snakeCanvas" width="300" height="300"></canvas>
+                <div class="snake-controls">
+                    <span>Score: <b id="snakeScore">0</b></span>
+                    <span>High: <b id="snakeHigh">0</b></span>
+                    <button id="snakeStart" class="snake-start-btn">START</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+    <script src="js/conversations.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/snake.js"></script>
+    <script src="js/wallet.js"></script>
 </body>
 </html>

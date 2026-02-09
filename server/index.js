@@ -4,6 +4,35 @@ const http = require('http');
 
 const PORT = process.env.PORT || 8080;
 
+// Whitelisted contract addresses (project's own tokens) - lowercased
+const WHITELISTED_ADDRESSES = [
+    '8rf5gn4mvpp7hfy3bjyqeqmpbah2hjz8fusg2jv9bags',  // $MILAIDY (Solana)
+    '0x0000000000c5dc95539589fbd24be07c6c14eca4',      // $CULT (Ethereum)
+    'e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp',    // MILAIDY pair
+    '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2',      // CULT pair
+];
+
+// Contract address detection
+function containsContractAddress(text) {
+    if (!text) return false;
+    // Ethereum addresses: 0x + 40 hex chars
+    const ethRegex = /0x[a-f0-9]{40}/gi;
+    // Solana addresses: Base58, 32-44 chars (no 0, O, I, l)
+    const solRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
+
+    const ethMatches = text.match(ethRegex) || [];
+    for (const addr of ethMatches) {
+        if (!WHITELISTED_ADDRESSES.includes(addr.toLowerCase())) return true;
+    }
+
+    const solMatches = text.match(solRegex) || [];
+    for (const addr of solMatches) {
+        if (addr.length >= 32 && !WHITELISTED_ADDRESSES.includes(addr.toLowerCase())) return true;
+    }
+
+    return false;
+}
+
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('milAIdy OK');
@@ -153,16 +182,22 @@ wss.on('connection', (ws) => {
                     return;
                 }
 
+                const text = String(data.payload.text).slice(0, 1000).trim();
+                if (!text) return;
+
+                // Contract address filter
+                if (containsContractAddress(text)) {
+                    console.log('Blocked CA in message from:', data.payload.agentId);
+                    return;
+                }
+
                 checkDayReset(); // Check if we need to reset counter
                 const msg = {
                     id: 'msg_' + messageIdCounter++,
                     agentId: data.payload.agentId,
-                    text: String(data.payload.text).slice(0, 1000).trim(),
+                    text: text,
                     timestamp: Date.now()
                 };
-
-                // Don't add empty messages
-                if (!msg.text) return;
 
                 messages.push(msg);
                 if (messages.length > MAX_MESSAGES) messages.shift();
@@ -188,11 +223,20 @@ wss.on('connection', (ws) => {
 
             // Human trollbox message
             if (data.type === 'human_message' && data.payload?.name && data.payload?.text) {
+                const text = String(data.payload.text).slice(0, 500);
+
+                // Contract address filter
+                if (containsContractAddress(text)) {
+                    console.log('Blocked CA in human message from:', data.payload.name);
+                    return;
+                }
+
                 checkDayReset(); // Check if we need to reset counter
                 const msg = {
                     id: 'hmsg_' + messageIdCounter++,
                     name: String(data.payload.name).slice(0, 20),
-                    text: String(data.payload.text).slice(0, 500),
+                    text: text,
+                    avatarIndex: Math.min(7, Math.max(0, parseInt(data.payload.avatarIndex) || 0)),
                     timestamp: Date.now()
                 };
                 humanMessages.push(msg);
