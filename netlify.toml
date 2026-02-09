@@ -10,6 +10,19 @@
   status = 301
   force = true
 
+# API proxy to avoid adblocker interference
+[[redirects]]
+  from = "/_api/dex/*"
+  to = "https://api.dexscreener.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/_api/cg/*"
+  to = "https://api.coingecko.com/:splat"
+  status = 200
+  force = true
+
 # Headers for security and caching
 [[headers]]
   for = "/*"

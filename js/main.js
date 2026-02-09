@@ -600,14 +600,32 @@ function demoReactToRealMessage(payload) {
     }, delay);
 }
 
-// Price fetching
+// Price fetching - use proxy on production to avoid adblocker interference
+const IS_PROD = location.hostname === 'milaidy.net';
+const DEX_BASE = IS_PROD ? '/_api/dex/latest/dex/pairs' : 'https://api.dexscreener.com/latest/dex/pairs';
+const CG_BASE = IS_PROD ? '/_api/cg/api/v3' : 'https://api.coingecko.com/api/v3';
+
+async function fetchWithFallback(proxyUrl, directUrl) {
+    try {
+        const res = await fetch(proxyUrl);
+        if (res.ok) return res;
+    } catch (e) { /* proxy failed, try direct */ }
+    return fetch(directUrl).catch(() => null);
+}
+
 async function fetchPrices() {
     try {
         if (window.ETH_MAXI_MODE) {
             // ETH Maxi mode: fetch $CULT + $ETH
             const [cultRes, ethRes] = await Promise.all([
-                fetch(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${TOKENS.cult.pair}`).catch(() => null),
-                fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true').catch(() => null)
+                fetchWithFallback(
+                    `${DEX_BASE}/ethereum/${TOKENS.cult.pair}`,
+                    `https://api.dexscreener.com/latest/dex/pairs/ethereum/${TOKENS.cult.pair}`
+                ),
+                fetchWithFallback(
+                    `${CG_BASE}/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true`,
+                    'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true'
+                )
             ]);
 
             if (cultRes?.ok) {
@@ -631,8 +649,14 @@ async function fetchPrices() {
         } else {
             // Normal mode: fetch $CULT + $MILAIDY
             const [cultRes, milaidyRes] = await Promise.all([
-                fetch(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${TOKENS.cult.pair}`).catch(() => null),
-                fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${TOKENS.milaidy.pair}`).catch(() => null)
+                fetchWithFallback(
+                    `${DEX_BASE}/ethereum/${TOKENS.cult.pair}`,
+                    `https://api.dexscreener.com/latest/dex/pairs/ethereum/${TOKENS.cult.pair}`
+                ),
+                fetchWithFallback(
+                    `${DEX_BASE}/solana/${TOKENS.milaidy.pair}`,
+                    `https://api.dexscreener.com/latest/dex/pairs/solana/${TOKENS.milaidy.pair}`
+                )
             ]);
 
             if (cultRes?.ok) {
