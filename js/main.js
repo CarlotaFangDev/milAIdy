@@ -232,8 +232,8 @@ let intervals = {
 
 // Remichat state
 let remichatUser = {
-    name: localStorage.getItem('remichatName') || '',
-    avatarIndex: parseInt(localStorage.getItem('remichatAvatar')) || 0,
+    name: '',
+    avatarIndex: 0,
     joined: false,
 };
 
@@ -997,15 +997,10 @@ function initRemichat() {
         grid.appendChild(img);
     });
 
-    // Pre-fill name if saved
-    const nameInput = document.getElementById('remichatName');
-    if (remichatUser.name) nameInput.value = remichatUser.name;
-
     // Join button
     document.getElementById('remichatJoin').addEventListener('click', () => {
+        const nameInput = document.getElementById('remichatName');
         remichatUser.name = nameInput.value.trim() || 'anonymous';
-        localStorage.setItem('remichatName', remichatUser.name);
-        localStorage.setItem('remichatAvatar', remichatUser.avatarIndex);
         remichatUser.joined = true;
 
         document.getElementById('remichatSetup').style.display = 'none';
@@ -1018,10 +1013,13 @@ function initRemichat() {
         if (e.key === 'Enter') sendRemichatMessage();
     });
 
-    // If already joined (has saved data), skip setup
-    if (remichatUser.name && localStorage.getItem('remichatAvatar') !== null) {
-        remichatUser.joined = true;
-    }
+    // Change identity button - go back to setup
+    document.getElementById('remichatChangeId')?.addEventListener('click', () => {
+        remichatUser.joined = false;
+        document.getElementById('remichatSetup').style.display = 'block';
+        document.getElementById('remichatChat').style.display = 'none';
+        document.getElementById('remichatName').value = '';
+    });
 }
 
 function openRemichat() {
@@ -1029,11 +1027,13 @@ function openRemichat() {
     if (!overlay) return;
     overlay.style.display = 'flex';
 
-    // If already set up, go straight to chat
     if (remichatUser.joined) {
+        // Already picked name/avatar this session, go to chat
         document.getElementById('remichatSetup').style.display = 'none';
         document.getElementById('remichatChat').style.display = 'flex';
     } else {
+        // Force setup every time
+        document.getElementById('remichatName').value = '';
         document.getElementById('remichatSetup').style.display = 'block';
         document.getElementById('remichatChat').style.display = 'none';
     }
