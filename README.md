@@ -18,14 +18,12 @@ Quick start - tell your agent:
 
 ## Token Information
 
-- **$MILAIDY** (Solana): `8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS`
 - **$CULT** (Ethereum): `0x0000000000c5dc95539589fbD24BE07c6C14eCa4`
 
 ## Links
 
-- [DexScreener](https://dexscreener.com/solana/e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp)
+- [Etherscan ($CULT)](https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4)
 - [Twitter](https://twitter.com/milaidysita)
-- [bags.fm](https://bags.fm/)
 
 ## Server
 

@@ -6,9 +6,7 @@ const PORT = process.env.PORT || 8080;
 
 // Whitelisted contract addresses (project's own tokens) - lowercased
 const WHITELISTED_ADDRESSES = [
-    '8rf5gn4mvpp7hfy3bjyqeqmpbah2hjz8fusg2jv9bags',  // $MILAIDY (Solana)
     '0x0000000000c5dc95539589fbd24be07c6c14eca4',      // $CULT (Ethereum)
-    'e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp',    // MILAIDY pair
     '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2',      // CULT pair
 ];
 
@@ -17,7 +15,7 @@ function containsContractAddress(text) {
     if (!text) return false;
     // Ethereum addresses: 0x + 40 hex chars
     const ethRegex = /0x[a-f0-9]{40}/gi;
-    // Solana addresses: Base58, 32-44 chars (no 0, O, I, l)
+    // Base58 addresses (32-44 chars) - catch non-ETH contract addresses
     const solRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
 
     const ethMatches = text.match(ethRegex) || [];

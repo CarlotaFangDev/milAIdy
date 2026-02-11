@@ -18,15 +18,12 @@ const FALLBACK_AVATAR = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="
 
 // Token contracts
 const TOKENS = {
-    cult: { pair: '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2' },
-    milaidy: { pair: 'e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp' }
+    cult: { pair: '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2' }
 };
 
 // Whitelisted contract addresses (project's own tokens)
 const WHITELISTED_ADDRESSES = [
-    '8rf5gn4mvpp7hfy3bjyqeqmpbah2hjz8fusg2jv9bags',  // $MILAIDY (Solana) - lowercased
     '0x0000000000c5dc95539589fbd24be07c6c14eca4',      // $CULT (Ethereum) - lowercased
-    'e6aarrlzffceaqtvanvkxjrzmxnf4mpd6gjucv92tdtp',    // MILAIDY pair
     '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2',      // CULT pair
 ];
 
@@ -36,7 +33,7 @@ function containsContractAddress(text) {
     const lower = text.toLowerCase();
     // Ethereum addresses: 0x + 40 hex chars
     const ethRegex = /0x[a-f0-9]{40}/gi;
-    // Solana addresses: Base58, 32-44 chars (no 0, O, I, l)
+    // Base58 addresses (32-44 chars) - catch non-ETH contract addresses
     const solRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
 
     const ethMatches = text.match(ethRegex) || [];
@@ -247,16 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
         uptime: document.getElementById('uptime'),
         cultPrice: document.getElementById('cultPrice'),
         cultChange: document.getElementById('cultChange'),
-        milaidyPrice: document.getElementById('milaidyPrice'),
-        milaidyChange: document.getElementById('milaidyChange'),
         ethPrice: document.getElementById('ethPrice'),
         ethChange: document.getElementById('ethChange')
     };
 
-    // Restore ETH Maxi mode from localStorage
-    if (localStorage.getItem('ethMaxiMode') === 'true') {
-        activateEthMaxi(true);
-    }
+    // ETH mode is always active
+    window.ETH_MAXI_MODE = true;
+    if (window.initWalletEth) window.initWalletEth();
 
     // Start with demo agents
     state.agents = demoAgents.map(a => ({...a}));
@@ -627,45 +621,27 @@ async function priceFetchCG(path) {
 
 async function fetchPrices() {
     try {
-        if (window.ETH_MAXI_MODE) {
-            // ETH Maxi mode: fetch $CULT + $ETH
-            const [cultRes, ethRes] = await Promise.all([
-                priceFetch('latest/dex/pairs/ethereum/' + TOKENS.cult.pair),
-                priceFetchCG('api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true')
-            ]);
+        const [cultRes, ethRes] = await Promise.all([
+            priceFetch('latest/dex/pairs/ethereum/' + TOKENS.cult.pair),
+            priceFetchCG('api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true')
+        ]);
 
-            if (cultRes?.ok) {
-                const data = await cultRes.json();
-                if (data.pair) updatePriceDisplay('cult', data.pair);
-            }
-            if (ethRes?.ok) {
-                const data = await ethRes.json();
-                if (data.ethereum) {
-                    const price = data.ethereum.usd || 0;
-                    const change = data.ethereum.usd_24h_change || 0;
-                    if (elements.ethPrice) {
-                        elements.ethPrice.textContent = '$' + price.toFixed(2);
-                    }
-                    if (elements.ethChange) {
-                        elements.ethChange.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-                        elements.ethChange.className = 'ticker-change ' + (change >= 0 ? 'positive' : 'negative');
-                    }
+        if (cultRes?.ok) {
+            const data = await cultRes.json();
+            if (data.pair) updatePriceDisplay('cult', data.pair);
+        }
+        if (ethRes?.ok) {
+            const data = await ethRes.json();
+            if (data.ethereum) {
+                const price = data.ethereum.usd || 0;
+                const change = data.ethereum.usd_24h_change || 0;
+                if (elements.ethPrice) {
+                    elements.ethPrice.textContent = '$' + price.toFixed(2);
                 }
-            }
-        } else {
-            // Normal mode: fetch $CULT + $MILAIDY
-            const [cultRes, milaidyRes] = await Promise.all([
-                priceFetch('latest/dex/pairs/ethereum/' + TOKENS.cult.pair),
-                priceFetch('latest/dex/pairs/solana/' + TOKENS.milaidy.pair)
-            ]);
-
-            if (cultRes?.ok) {
-                const data = await cultRes.json();
-                if (data.pair) updatePriceDisplay('cult', data.pair);
-            }
-            if (milaidyRes?.ok) {
-                const data = await milaidyRes.json();
-                if (data.pair) updatePriceDisplay('milaidy', data.pair);
+                if (elements.ethChange) {
+                    elements.ethChange.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+                    elements.ethChange.className = 'ticker-change ' + (change >= 0 ? 'positive' : 'negative');
+                }
             }
         }
     } catch (e) { /* silent fail */ }
@@ -1077,93 +1053,6 @@ const style = document.createElement('style');
 style.textContent = '@keyframes fadeIn{from{opacity:0;background:#ffe0d6}to{opacity:1}}';
 document.head.appendChild(style);
 
-
-// ETH Maxi Mode toggle
-function activateEthMaxi(skipStorage) {
-    window.ETH_MAXI_MODE = true;
-    // Swap tickers
-    var milaidyTicker = document.getElementById('milaidyTicker');
-    var ethTicker = document.getElementById('ethTicker');
-    if (milaidyTicker) milaidyTicker.style.display = 'none';
-    if (ethTicker) ethTicker.style.display = '';
-    // Swap wallets
-    var solWallet = document.getElementById('solWalletWidget');
-    var ethWallet = document.getElementById('ethWalletWidget');
-    if (solWallet) solWallet.style.display = 'none';
-    if (ethWallet) ethWallet.style.display = '';
-    // Swap footer CA
-    var footerSol = document.getElementById('footerCaSol');
-    var footerEth = document.getElementById('footerCaEth');
-    if (footerSol) footerSol.style.display = 'none';
-    if (footerEth) footerEth.style.display = '';
-    // Swap links (sidebar + footer)
-    var sLinksSol = document.getElementById('sidebarLinksSol');
-    var sLinksEth = document.getElementById('sidebarLinksEth');
-    if (sLinksSol) sLinksSol.style.display = 'none';
-    if (sLinksEth) sLinksEth.style.display = '';
-    var fLinksSol = document.getElementById('footerLinksSol');
-    var fLinksEth = document.getElementById('footerLinksEth');
-    if (fLinksSol) fLinksSol.style.display = 'none';
-    if (fLinksEth) fLinksEth.style.display = '';
-    // Update toggle link: show Solana logo + "sol mode"
-    var icon = document.getElementById('ethMaxiIcon');
-    var label = document.getElementById('ethMaxiLabel');
-    if (icon) icon.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 397 311'%3E%3Cpath fill='%239945FF' d='M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7zm0-234.1C67 1.4 70.3 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8zm268.3 115.5c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.9-62.7z'/%3E%3C/svg%3E";
-    if (label) label.textContent = 'sol mode';
-    // Title
-    document.title = '/milAIdy/ ETH Maxi Mode';
-    // Init ETH wallet & fetch prices
-    if (window.initWalletEth) window.initWalletEth();
-    if (!skipStorage) localStorage.setItem('ethMaxiMode', 'true');
-    fetchPrices();
-}
-
-function deactivateEthMaxi() {
-    window.ETH_MAXI_MODE = false;
-    // Swap tickers
-    var milaidyTicker = document.getElementById('milaidyTicker');
-    var ethTicker = document.getElementById('ethTicker');
-    if (milaidyTicker) milaidyTicker.style.display = '';
-    if (ethTicker) ethTicker.style.display = 'none';
-    // Swap wallets
-    var solWallet = document.getElementById('solWalletWidget');
-    var ethWallet = document.getElementById('ethWalletWidget');
-    if (solWallet) solWallet.style.display = '';
-    if (ethWallet) ethWallet.style.display = 'none';
-    // Swap footer CA
-    var footerSol = document.getElementById('footerCaSol');
-    var footerEth = document.getElementById('footerCaEth');
-    if (footerSol) footerSol.style.display = '';
-    if (footerEth) footerEth.style.display = 'none';
-    // Swap links (sidebar + footer)
-    var sLinksSol = document.getElementById('sidebarLinksSol');
-    var sLinksEth = document.getElementById('sidebarLinksEth');
-    if (sLinksSol) sLinksSol.style.display = '';
-    if (sLinksEth) sLinksEth.style.display = 'none';
-    var fLinksSol = document.getElementById('footerLinksSol');
-    var fLinksEth = document.getElementById('footerLinksEth');
-    if (fLinksSol) fLinksSol.style.display = '';
-    if (fLinksEth) fLinksEth.style.display = 'none';
-    // Update toggle link: show ETH logo + "eth maxi"
-    var icon = document.getElementById('ethMaxiIcon');
-    var label = document.getElementById('ethMaxiLabel');
-    if (icon) icon.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 784 1277'%3E%3Cpath fill='%23343434' d='M392.07 0l-8.57 29.11v844.63l8.57 8.55 392.06-231.75z'/%3E%3Cpath fill='%238C8C8C' d='M392.07 0L0 650.54l392.07 231.75V472.33z'/%3E%3Cpath fill='%233C3C3B' d='M392.07 956.52l-4.83 5.89v300.87l4.83 14.1 392.3-552.49z'/%3E%3Cpath fill='%238C8C8C' d='M392.07 1277.38V956.52L0 724.89z'/%3E%3Cpath fill='%23141414' d='M392.07 882.29l392.06-231.75-392.06-178.21z'/%3E%3Cpath fill='%23393939' d='M0 650.54l392.07 231.75V472.33z'/%3E%3C/svg%3E";
-    if (label) label.textContent = 'eth maxi';
-    // Title
-    document.title = '/milAIdy/';
-    localStorage.removeItem('ethMaxiMode');
-    fetchPrices();
-}
-
-function toggleEthMaxi() {
-    if (window.ETH_MAXI_MODE) {
-        deactivateEthMaxi();
-    } else {
-        activateEthMaxi();
-    }
-}
-
-window.toggleEthMaxi = toggleEthMaxi;
 
 // Export API for external use
 window.milAIdy = {
