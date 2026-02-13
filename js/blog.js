@@ -15,7 +15,7 @@ const BLOG_CONFIG = {
         ? 'ws://localhost:8080'     // Local dev
         : 'wss://milaidy-server.onrender.com',
     postsPerPage: 10,
-    version: '1.0.0'
+    version: '2.0.0'
 };
 
 // ============================================
@@ -1743,6 +1743,144 @@ async function renderSidebar() {
 }
 
 // ============================================
+// REMICHAT (Bootleg Trollbox for Blog)
+// ============================================
+
+var MILADY_AVATARS = [
+    'assets/milady1.png',
+    'assets/milady2.png',
+    'assets/milady3.png',
+    'assets/milady4.png',
+    'assets/milady5.png',
+    'assets/milady6.png',
+    'assets/milady7.jpg',
+    'assets/milady8.jpg',
+];
+
+var blogRemichatUser = {
+    name: '',
+    avatarIndex: 0,
+    joined: false,
+};
+
+function initBlogRemichat() {
+    var overlay = document.getElementById('remichatOverlay');
+    if (!overlay) return;
+
+    // Close button
+    document.getElementById('remichatClose').addEventListener('click', closeBlogRemichat);
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeBlogRemichat();
+    });
+
+    // Populate avatar grid
+    var grid = document.getElementById('remichatAvatarGrid');
+    MILADY_AVATARS.forEach(function(src, i) {
+        var img = document.createElement('img');
+        img.src = src;
+        img.className = 'remichat-avatar-option' + (i === blogRemichatUser.avatarIndex ? ' selected' : '');
+        img.dataset.index = i;
+        img.addEventListener('click', function() {
+            grid.querySelectorAll('.remichat-avatar-option').forEach(function(el) { el.classList.remove('selected'); });
+            img.classList.add('selected');
+            blogRemichatUser.avatarIndex = i;
+        });
+        grid.appendChild(img);
+    });
+
+    // Join button
+    document.getElementById('remichatJoin').addEventListener('click', function() {
+        var nameInput = document.getElementById('remichatName');
+        blogRemichatUser.name = nameInput.value.trim() || 'anonymous';
+        blogRemichatUser.joined = true;
+
+        document.getElementById('remichatSetup').style.display = 'none';
+        document.getElementById('remichatChat').style.display = 'flex';
+    });
+
+    // Send button and enter key
+    document.getElementById('remichatSend').addEventListener('click', sendBlogRemichatMessage);
+    document.getElementById('remichatInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') sendBlogRemichatMessage();
+    });
+
+    // Change identity button
+    var changeBtn = document.getElementById('remichatChangeId');
+    if (changeBtn) {
+        changeBtn.addEventListener('click', function() {
+            blogRemichatUser.joined = false;
+            document.getElementById('remichatSetup').style.display = 'block';
+            document.getElementById('remichatChat').style.display = 'none';
+            document.getElementById('remichatName').value = '';
+        });
+    }
+}
+
+function openBlogRemichat() {
+    var overlay = document.getElementById('remichatOverlay');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+
+    if (blogRemichatUser.joined) {
+        document.getElementById('remichatSetup').style.display = 'none';
+        document.getElementById('remichatChat').style.display = 'flex';
+    } else {
+        document.getElementById('remichatName').value = '';
+        document.getElementById('remichatSetup').style.display = 'block';
+        document.getElementById('remichatChat').style.display = 'none';
+    }
+}
+
+function closeBlogRemichat() {
+    var overlay = document.getElementById('remichatOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function sendBlogRemichatMessage() {
+    var input = document.getElementById('remichatInput');
+    var text = input.value.trim();
+    if (!text) return;
+
+    if (blogWs && blogWs.readyState === WebSocket.OPEN) {
+        blogWs.send(JSON.stringify({
+            type: 'human_message',
+            payload: {
+                name: blogRemichatUser.name,
+                text: text,
+                avatarIndex: blogRemichatUser.avatarIndex
+            }
+        }));
+    }
+
+    input.value = '';
+}
+
+function handleBlogHumanMessage(payload) {
+    if (!payload.name || !payload.text) return;
+
+    var messagesDiv = document.getElementById('remichatMessages');
+    if (!messagesDiv) return;
+
+    var avatarIdx = payload.avatarIndex || 0;
+    var avatarSrc = MILADY_AVATARS[avatarIdx] || MILADY_AVATARS[0];
+    var time = payload.timestamp ? new Date(payload.timestamp) : new Date();
+    var timeStr = String(time.getHours()).padStart(2, '0') + ':' + String(time.getMinutes()).padStart(2, '0');
+
+    var msgEl = document.createElement('div');
+    msgEl.className = 'remichat-msg';
+    msgEl.innerHTML = '<img src="' + avatarSrc + '" class="remichat-msg-avatar" onerror="this.style.display=\'none\'">'
+        + '<span class="remichat-msg-name">' + escapeHtml(payload.name) + '</span>'
+        + '<span class="remichat-msg-time">' + timeStr + '</span>'
+        + '<br><span class="remichat-msg-text">' + escapeHtml(payload.text) + '</span>';
+
+    messagesDiv.appendChild(msgEl);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Expose remichat opener globally for nav link
+window.openRemichat = openBlogRemichat;
+
+// ============================================
 // WEBSOCKET INTEGRATION
 // ============================================
 
@@ -1762,6 +1900,22 @@ function initBlogWebSocket() {
             var data = JSON.parse(event.data);
 
             switch (data.type) {
+                case 'human_message':
+                    handleBlogHumanMessage(data.payload);
+                    break;
+
+                case 'sync':
+                    // Render existing human messages from server
+                    var chat = document.getElementById('remichatMessages');
+                    if (chat) chat.innerHTML = '<div class="remichat-welcome">Welcome to Bootleg Remichat! Be nice.</div>';
+                    if (data.payload && data.payload.humanMessages) {
+                        data.payload.humanMessages.forEach(function(m) {
+                            handleBlogHumanMessage(m);
+                        });
+                    }
+                    // Fall through to handle blog-specific sync events below
+                    break;
+
                 case 'blog_new_post':
                     // If on feed view, prepend new post card
                     if (location.hash === '' || location.hash === '#/' || location.hash === '#') {
@@ -1888,6 +2042,9 @@ function initBlog() {
 
     // Init WebSocket for live updates
     initBlogWebSocket();
+
+    // Init Remichat
+    initBlogRemichat();
 
     // Start demo article scheduler (from blog-articles.js)
     if (typeof BlogScheduler === 'function') {

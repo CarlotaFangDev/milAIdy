@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>/milAIdy/ - Blog</title>
     <link rel="icon" type="image/png" href="assets/favicon-blog.png">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/blog.css">
+    <link rel="stylesheet" href="css/style.css?v=2.0.0">
+    <link rel="stylesheet" href="css/blog.css?v=2.0.0">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -23,6 +26,9 @@
                 [<a href="#/write">write</a>]
                 [<a href="#/bulletins">bulletins</a>]
                 [<a href="https://twitter.com/milaidysita" target="_blank">twitter</a>]
+                [<a href="#" onclick="openRemichat(); return false;">remichat</a>]
+                [<a href="#" onclick="openSnake(); return false;">snake</a>]
+                [<a href="#" onclick="openGotchi(); return false;">miladygotchi</a>]
             </nav>
         </header>
 
@@ -51,7 +57,77 @@
         </footer>
     </div>
 
-    <script src="js/blog-articles.js"></script>
-    <script src="js/blog.js"></script>
+    <!-- Remichat Popup -->
+    <div class="remichat-overlay" id="remichatOverlay" style="display:none;">
+        <div class="remichat-popup">
+            <div class="remichat-header">
+                <span>Bootleg Remichat</span>
+                <span class="remichat-close" id="remichatClose">&#10005;</span>
+            </div>
+            <!-- Setup Screen -->
+            <div class="remichat-setup" id="remichatSetup">
+                <div class="remichat-setup-inner">
+                    <label>Name:</label>
+                    <input type="text" id="remichatName" maxlength="20" placeholder="anonymous" class="remichat-name-input">
+                    <label>Avatar:</label>
+                    <div class="remichat-avatar-grid" id="remichatAvatarGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                    <button id="remichatJoin" class="remichat-join-btn">Enter Chat</button>
+                </div>
+            </div>
+            <!-- Chat Screen -->
+            <div class="remichat-chat" id="remichatChat" style="display:none;">
+                <div class="remichat-messages" id="remichatMessages">
+                    <div class="remichat-welcome">Welcome to Bootleg Remichat! Be nice.</div>
+                </div>
+                <div class="remichat-input-area">
+                    <input type="text" id="remichatInput" maxlength="500" placeholder="Type a message..." class="remichat-text-input">
+                    <button id="remichatSend" class="remichat-send-btn">Send</button>
+                    <button id="remichatChangeId" class="remichat-send-btn" title="Change name & avatar" style="font-size:13px;">&#9998;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snake Game Popup -->
+    <div class="snake-overlay" id="snakeOverlay" style="display:none;">
+        <div class="snake-popup">
+            <div class="snake-header">
+                <span>Snake (Nokia Edition)</span>
+                <span class="snake-close" id="snakeClose">&#10005;</span>
+            </div>
+            <div class="snake-body">
+                <canvas id="snakeCanvas" width="300" height="300"></canvas>
+                <div class="snake-controls">
+                    <span>Score: <b id="snakeScore">0</b></span>
+                    <span>High: <b id="snakeHigh">0</b></span>
+                    <button id="snakeStart" class="snake-start-btn">START</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Miladygotchi Popup -->
+    <div class="gotchi-overlay" id="gotchiOverlay" style="display:none;">
+        <div class="gotchi-popup">
+            <div class="gotchi-shell">
+                <div class="gotchi-shell-top">MILADYGOTCHI</div>
+                <div class="gotchi-screen-bezel">
+                    <canvas id="gotchiCanvas" width="240" height="280"></canvas>
+                </div>
+                <div class="gotchi-buttons">
+                    <button class="gotchi-btn" onclick="document.getElementById('gotchiCanvas').dispatchEvent(new MouseEvent('click',{clientX:0,clientY:0}))">A</button>
+                    <button class="gotchi-btn" onclick="document.getElementById('gotchiCanvas').dispatchEvent(new MouseEvent('click',{clientX:0,clientY:0}))">B</button>
+                    <button class="gotchi-btn gotchi-btn-close" id="gotchiClose">C</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/blog-articles.js?v=2.0.0"></script>
+    <script src="js/blog.js?v=2.0.0"></script>
+    <script src="js/snake.js?v=2.0.0"></script>
+    <script src="js/gotchi.js?v=2.0.0"></script>
 </body>
 </html>
