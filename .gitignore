@@ -24,3 +24,8 @@ build/
 
 # Local Netlify folder
 .netlify
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal

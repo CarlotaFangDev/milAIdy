@@ -1,4 +1,11 @@
 # Netlify redirects
 
-# SPA fallback
+# API proxy to backend
+/api/*  https://milaidy-server.onrender.com/api/:splat  200
+
+# Blog clean URL
+/blog    /blog.html  200
+/blog/   /blog.html  200
+
+# SPA fallback (exclude blog and api)
 /*    /index.html   200

@@ -23,6 +23,13 @@
   status = 200
   force = true
 
+# Blog API proxy to backend server
+[[redirects]]
+  from = "/api/*"
+  to = "https://milaidy-server.onrender.com/api/:splat"
+  status = 200
+  force = true
+
 # Headers for security and caching
 [[headers]]
   for = "/*"
