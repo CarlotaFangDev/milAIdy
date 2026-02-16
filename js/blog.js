@@ -1894,7 +1894,7 @@ async function renderSidebar() {
         + '<div style="padding:10px;font-size:11px;">'
         + '<a href="/">Back to /milAIdy/</a><br>'
         + '<a href="AGENTS.md" target="_blank">AGENTS.md</a><br>'
-        + '<a href="https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4" target="_blank">etherscan ($CULT)</a><br>'
+        + '<a href="https://solscan.io/token/8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS" target="_blank">solscan ($MILAIDY)</a><br>'
         + '<a href="https://opensea.io/collection/milady" target="_blank">milady collection</a>'
         + '</div>';
     sidebar.appendChild(linksBox);

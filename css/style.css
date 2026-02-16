@@ -1098,6 +1098,272 @@ a:hover {
     background: var(--text-primary);
 }
 
+/* ==============================
+   CA Bar (Header)
+   ============================== */
+
+.ca-bar {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ca-label {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.ca-address {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    user-select: all;
+    cursor: pointer;
+    background: var(--bg-page);
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+}
+
+.ca-buy-btn {
+    background: #228b22;
+    color: #fff !important;
+    padding: 2px 8px;
+    text-decoration: none !important;
+    font-size: 11px;
+    font-weight: bold;
+    border: 1px solid #1a6b1a;
+    cursor: pointer;
+}
+
+.ca-buy-btn:hover {
+    background: #1a6b1a;
+    color: #fff !important;
+}
+
+/* ==============================
+   Footer CA Block
+   ============================== */
+
+.footer-ca {
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+}
+
+.footer-ca .ca-address {
+    font-family: monospace;
+    font-size: 12px;
+    user-select: all;
+}
+
+.footer-ca-links {
+    font-size: 11px;
+}
+
+.footer-ca-links a {
+    text-decoration: none;
+}
+
+/* ==============================
+   $MILAIDY Ticker Slider
+   ============================== */
+
+.milaidy-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, var(--bg-header), #ffc88a);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    z-index: 10;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.milaidy-slider.hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.milaidy-slider-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.milaidy-slider-logo {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.milaidy-slider-ca {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    user-select: all;
+}
+
+.milaidy-slider-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    padding: 0 4px;
+}
+
+.milaidy-slider-close:hover {
+    color: var(--link-hover);
+}
+
+/* ==============================
+   Jupiter Swap Overlay
+   ============================== */
+
+.jupiter-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.jupiter-popup {
+    background: var(--bg-post);
+    border: 2px solid var(--border-dark);
+    width: 440px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.jupiter-header {
+    background: var(--bg-header);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.jupiter-close {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.jupiter-close:hover {
+    color: var(--link-hover);
+}
+
+.jupiter-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+}
+
+#jupiterPlugin {
+    min-height: 380px;
+}
+
+.jupiter-loading {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 40px 20px;
+}
+
+.jupiter-fallback {
+    padding: 25px 20px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.jupiter-fallback p {
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+}
+
+.jupiter-fallback-btn {
+    display: inline-block;
+    background: #228b22;
+    color: #fff !important;
+    padding: 8px 20px;
+    text-decoration: none !important;
+    font-weight: bold;
+    font-size: 13px;
+    border: 1px solid #1a6b1a;
+}
+
+.jupiter-fallback-btn:hover {
+    background: #1a6b1a;
+    color: #fff !important;
+}
+
+.jupiter-footer {
+    border-top: 1px solid var(--border);
+    padding: 8px 12px;
+    background: var(--bg-page);
+}
+
+.jupiter-ca-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.jupiter-ca-text {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    user-select: all;
+    word-break: break-all;
+}
+
+.jupiter-copy-btn {
+    background: var(--bg-post);
+    border: 1px solid var(--border);
+    color: var(--link);
+    cursor: pointer;
+    font-size: 10px;
+    padding: 2px 6px;
+    font-family: arial, helvetica, sans-serif;
+    flex-shrink: 0;
+}
+
+.jupiter-copy-btn:hover {
+    background: var(--bg-header);
+}
+
 /* Responsive */
 @media (max-width: 700px) {
     .main-content {
@@ -1134,6 +1400,18 @@ a:hover {
 
     .gotchi-popup { transform: scale(0.85); }
     .gotchi-screen-bezel canvas { width: 100%; height: auto; }
+
+    .ca-address { font-size: 9px; word-break: break-all; }
+    .ca-bar { font-size: 10px; gap: 4px; }
+    .ticker-wallet { max-width: 120px; }
+
+    .milaidy-slider-content { font-size: 10px; gap: 5px; }
+    .milaidy-slider-ca { display: none; }
+
+    .jupiter-popup { width: 95vw; max-height: 85vh; }
+    .jupiter-ca-text { font-size: 9px; }
+
+    .footer-ca { font-size: 11px; gap: 4px; padding: 6px 8px; }
 }
 
 /* Miladygotchi */

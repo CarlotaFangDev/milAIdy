@@ -29,6 +29,16 @@
     <div class="container">
         <!-- Price Ticker -->
         <div class="price-ticker">
+            <!-- $MILAIDY Slider (covers ticker, closeable) -->
+            <div class="milaidy-slider" id="milaidySlider">
+                <div class="milaidy-slider-content">
+                    <img src="assets/milaidy-logo.png" alt="" class="milaidy-slider-logo" onerror="this.style.display='none'">
+                    <span><b>$MILAIDY is back</b> &mdash; now on Solana</span>
+                    <span class="milaidy-slider-ca">8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS</span>
+                    <a href="#" onclick="openJupiterSwap(); return false;" class="ca-buy-btn">[buy]</a>
+                </div>
+                <button class="milaidy-slider-close" onclick="closeSlider()">&#10005;</button>
+            </div>
             <div class="ticker-track">
                 <div class="ticker-content">
                     <div class="ticker-item">
@@ -89,6 +99,11 @@
                 [<a href="#" onclick="openArcade(); return false;">arcade</a>]
                 [<a href="#" onclick="openDonateModal(); return false;">donate</a>]
             </nav>
+            <div class="ca-bar">
+                <span class="ca-label">$MILAIDY CA:</span>
+                <span class="ca-address" title="Click to copy">8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS</span>
+                <a href="#" onclick="openJupiterSwap(); return false;" class="ca-buy-btn">[buy]</a>
+            </div>
         </header>
 
         <!-- Main Content -->
@@ -151,7 +166,7 @@
                     <div class="sidebar-title">Links</div>
                     <div style="padding: 10px; font-size: 11px;">
                         <a href="AGENTS.md" target="_blank">AGENTS.md</a><br>
-                        <a href="https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4" target="_blank">etherscan ($CULT)</a><br>
+                        <a href="https://solscan.io/token/8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS" target="_blank">solscan ($MILAIDY)</a><br>
                         <a href="https://opensea.io/collection/milady" target="_blank">milady collection</a><br>
                         <a href="https://paragraph.com/@charlemagnefang" target="_blank">charlemagnefang</a>
                     </div>
@@ -182,11 +197,18 @@
         <footer class="footer">
             <div class="footer-links">
                 [<a href="AGENTS.md" target="_blank">AGENTS.md</a>]
-                [<a href="https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4" target="_blank">etherscan</a>]
+                [<a href="https://solscan.io/token/8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS" target="_blank">solscan ($MILAIDY)</a>]
                 [<a href="https://opensea.io/collection/milady" target="_blank">Milady Collection</a>]
             </div>
-            <p>milAIdy &copy; 2026 - copyleft, no rights reserved<br>
-            <span style="font-size: 10px; color: #909090;">$MILAIDY CA: 8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJV9BAGS</span></p>
+            <div class="footer-ca">
+                <span class="ca-label">$MILAIDY CA:</span>
+                <span class="ca-address" title="Click to copy">8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS</span>
+                <span class="footer-ca-links">
+                    [<a href="https://solscan.io/token/8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS" target="_blank">view on solscan</a>]
+                    [<a href="#" onclick="openJupiterSwap(); return false;">buy</a>]
+                </span>
+            </div>
+            <p>milAIdy &copy; 2026 - copyleft, no rights reserved</p>
         </footer>
     </div>
 
@@ -325,6 +347,30 @@
         <img src="assets/remiliacat.png" alt="" class="clippy-img" id="clippyImg" title="Click me~">
     </div>
 
+    <!-- Jupiter Swap -->
+    <div class="jupiter-overlay" id="jupiterOverlay" style="display:none;">
+        <div class="jupiter-popup">
+            <div class="jupiter-header">
+                <span>Buy $MILAIDY</span>
+                <span class="jupiter-close" onclick="closeJupiterSwap()">&#10005;</span>
+            </div>
+            <div class="jupiter-body">
+                <div id="jupiterPlugin"></div>
+                <div id="jupiterLoading" class="jupiter-loading">Loading swap...</div>
+                <div id="jupiterFallback" class="jupiter-fallback" style="display:none;">
+                    <p>Could not load Jupiter swap widget.</p>
+                    <a href="https://jup.ag/swap/SOL-8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS" target="_blank" class="jupiter-fallback-btn">Open Jupiter</a>
+                </div>
+            </div>
+            <div class="jupiter-footer">
+                <div class="jupiter-ca-box">
+                    <span class="jupiter-ca-text" id="jupiterCA">8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS</span>
+                    <button onclick="copyCA(this)" class="jupiter-copy-btn">[copy CA]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>window.ETH_MAXI_MODE = true;</script>
     <script src="https://unpkg.com/@solana/web3.js@1/lib/index.iife.min.js"></script>
     <script src="js/conversations.js"></script>
@@ -341,5 +387,81 @@
     <script src="js/highlow.js"></script>
     <script src="js/limbo.js"></script>
     <script src="js/clippy.js"></script>
+    <script>
+    // Slider: hide if already closed this session
+    (function() {
+        if (sessionStorage.getItem('milaidySliderClosed')) {
+            var s = document.getElementById('milaidySlider');
+            if (s) s.classList.add('hidden');
+        }
+    })();
+    function closeSlider() {
+        var s = document.getElementById('milaidySlider');
+        if (s) { s.classList.add('hidden'); sessionStorage.setItem('milaidySliderClosed', '1'); }
+    }
+
+    // Jupiter Swap (official plugin)
+    var MILAIDY_CA = '8rf5GN4MVPp7HFy3bjYqeqMpBAh2hJZ8fUSg2JV9BAGS';
+    var _jupReady = false, _jupFailed = false;
+
+    function openJupiterSwap() {
+        document.getElementById('jupiterOverlay').style.display = 'flex';
+        if (_jupReady || _jupFailed) return;
+        // Already loaded by previous attempt?
+        if (window.Jupiter) { _initJup(); return; }
+        // Lazy-load the Jupiter Plugin
+        var sc = document.createElement('script');
+        sc.src = 'https://plugin.jup.ag/plugin-v1.js';
+        sc.defer = true;
+        sc.onload = function() { _initJup(); };
+        sc.onerror = function() { _jupShowFallback(); };
+        setTimeout(function() { if (!_jupReady) _jupShowFallback(); }, 12000);
+        document.head.appendChild(sc);
+    }
+    function _initJup() {
+        if (!window.Jupiter) { _jupShowFallback(); return; }
+        _jupReady = true;
+        var ld = document.getElementById('jupiterLoading');
+        if (ld) ld.style.display = 'none';
+        window.Jupiter.init({
+            displayMode: 'integrated',
+            integratedTargetId: 'jupiterPlugin',
+            formProps: {
+                initialOutputMint: MILAIDY_CA,
+                fixedOutputMint: true
+            }
+        });
+    }
+    function _jupShowFallback() {
+        _jupFailed = true;
+        var ld = document.getElementById('jupiterLoading');
+        var fb = document.getElementById('jupiterFallback');
+        if (ld) ld.style.display = 'none';
+        if (fb) fb.style.display = 'block';
+    }
+    function closeJupiterSwap() {
+        document.getElementById('jupiterOverlay').style.display = 'none';
+    }
+    function copyCA(btn) {
+        var orig = btn.textContent;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(MILAIDY_CA).then(function() {
+                btn.textContent = '[copied!]';
+                setTimeout(function() { btn.textContent = orig; }, 1500);
+            });
+        } else {
+            var r = document.createRange();
+            r.selectNode(document.getElementById('jupiterCA'));
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(r);
+            document.execCommand('copy');
+            btn.textContent = '[copied!]';
+            setTimeout(function() { btn.textContent = orig; }, 1500);
+        }
+    }
+    document.getElementById('jupiterOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeJupiterSwap();
+    });
+    </script>
 </body>
 </html>
