@@ -49,15 +49,54 @@ a:hover {
     padding: 6px 12px;
     margin-bottom: 10px;
     display: flex;
-    justify-content: center;
-    gap: 30px;
-    font-size: 11px;
-    flex-wrap: wrap;
     align-items: center;
+    font-size: 11px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ticker-track {
+    flex: 1;
+    overflow: hidden;
+}
+
+.ticker-content {
+    display: inline-flex;
+    gap: 30px;
+    animation: ticker-scroll 25s linear infinite;
+    white-space: nowrap;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.ticker-track:hover .ticker-content {
+    animation-play-state: paused;
+}
+
+.ticker-wallet {
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    padding-left: 8px;
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 200px;
+    overflow: hidden;
+}
+
+#walletConnected {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
 }
 
 .ticker-item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
 }
@@ -1177,4 +1216,664 @@ a:hover {
     background: linear-gradient(145deg, #d0a0a0, #b08888);
     border-color: #a08080;
     color: #604040;
+}
+
+/* ==============================
+   Arcade Overlay
+   ============================== */
+
+.arcade-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arcade-popup {
+    background: var(--bg-post, #f0e0d6);
+    border: 2px solid var(--border-dark, #b7a59c);
+    width: 380px;
+    max-width: 95vw;
+}
+
+.arcade-header {
+    background: var(--bg-header, #fed6af);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+    color: var(--text-primary, #800000);
+    border-bottom: 1px solid var(--border);
+}
+
+.arcade-close {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.arcade-close:hover {
+    color: #c62828;
+}
+
+.arcade-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 15px;
+}
+
+.arcade-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+}
+
+.arcade-card {
+    background: var(--bg-page, #ffffee);
+    border: 1px solid var(--border);
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.arcade-card:hover {
+    background: var(--bg-post-highlight, #d6bad0);
+    border-color: var(--border-dark);
+}
+
+.arcade-icon {
+    font-size: 32px;
+    margin-bottom: 6px;
+}
+
+.arcade-name {
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.arcade-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* ==============================
+   Casino Overlays (Plinko / HighLow)
+   ============================== */
+
+.plinko-overlay,
+.highlow-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.plinko-popup,
+.highlow-popup {
+    background: var(--bg-post);
+    border: 2px solid var(--border-dark);
+    color: var(--text-secondary);
+    width: 360px;
+    max-width: 95vw;
+}
+
+.plinko-header,
+.highlow-header {
+    background: var(--bg-header);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.plinko-close,
+.highlow-close {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.plinko-close:hover,
+.highlow-close:hover {
+    color: var(--link-hover);
+}
+
+.casino-mode-toggle {
+    display: flex;
+    gap: 4px;
+    margin-left: 10px;
+}
+
+.casino-mode-btn {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 2px 8px;
+    font-size: 9px;
+    cursor: pointer;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.casino-mode-btn.active {
+    background: var(--bg-header);
+    color: var(--text-primary);
+    border-color: var(--border-dark);
+}
+
+.plinko-body,
+.highlow-body {
+    padding: 10px;
+    text-align: center;
+}
+
+.casino-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    font-size: 11px;
+    flex-wrap: wrap;
+}
+
+.casino-controls label {
+    color: var(--text-primary);
+    font-size: 10px;
+}
+
+.casino-controls input {
+    width: 60px;
+    padding: 3px 5px;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.casino-controls select {
+    padding: 3px 5px;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 10px;
+}
+
+.casino-btn {
+    background: var(--bg-header);
+    color: var(--text-primary);
+    border: 1px solid var(--border-dark);
+    padding: 5px 15px;
+    font-weight: bold;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.casino-btn:hover {
+    background: var(--bg-post-highlight);
+}
+
+.casino-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.casino-btn.danger {
+    background: var(--link-hover);
+    color: #fff;
+}
+
+.casino-btn.danger:hover {
+    background: #c62828;
+}
+
+.casino-balance {
+    color: var(--text-primary);
+    font-family: arial, helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.casino-result {
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px;
+    min-height: 20px;
+}
+
+/* ==============================
+   Tip Modal
+   ============================== */
+
+.tip-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tip-modal {
+    background: var(--bg-post, #f0e0d6);
+    border: 2px solid var(--border-dark, #b7a59c);
+    width: 280px;
+    max-width: 90vw;
+}
+
+.tip-modal-header {
+    background: var(--bg-header, #fed6af);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.tip-modal-close {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.tip-modal-close:hover {
+    color: #c62828;
+}
+
+.tip-modal-body {
+    padding: 15px;
+}
+
+.tip-label {
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.tip-select,
+.tip-input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.tip-send-btn {
+    width: 100%;
+    padding: 6px;
+    background: #228b22;
+    color: #fff;
+    border: 1px solid #1a6b1a;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tip-send-btn:hover {
+    background: #1a6b1a;
+}
+
+.tip-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tip-status {
+    margin-top: 8px;
+    font-size: 11px;
+    text-align: center;
+    min-height: 16px;
+}
+
+.tip-status-success { color: #228b22; }
+.tip-status-error { color: #c62828; }
+
+/* ==============================
+   Deposit Modal (Arcade)
+   ============================== */
+
+.deposit-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 1002;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.deposit-modal {
+    background: var(--bg-page);
+    border: 2px solid var(--border-dark);
+    width: 300px;
+    max-width: 90vw;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.18);
+}
+
+.deposit-modal-header {
+    background: var(--bg-header);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-dark);
+    font-family: arial, helvetica, sans-serif;
+}
+
+.deposit-modal-header .close-btn {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.deposit-modal-header .close-btn:hover {
+    color: var(--link-hover);
+}
+
+.deposit-modal-body {
+    padding: 14px;
+}
+
+.deposit-select {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.deposit-select:focus {
+    outline: none;
+    border-color: var(--border-dark);
+}
+
+.deposit-input {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.deposit-input:focus {
+    outline: none;
+    border-color: var(--border-dark);
+}
+
+.deposit-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    font-weight: bold;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.deposit-send-btn {
+    width: 100%;
+    padding: 8px;
+    background: var(--bg-post);
+    color: var(--text-primary);
+    border: 1px solid var(--border-dark);
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.deposit-send-btn:hover {
+    background: var(--bg-header);
+}
+
+.deposit-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.deposit-status {
+    margin-top: 8px;
+    font-size: 11px;
+    text-align: center;
+    min-height: 16px;
+    font-family: arial, helvetica, sans-serif;
+    color: var(--text-muted);
+}
+
+.deposit-status.success { color: var(--online); }
+.deposit-status.error { color: var(--link-hover); }
+
+/* ==============================
+   Arcade Lobby (site-themed)
+   ============================== */
+
+.arcade-lobby {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-page);
+    padding: 10px 15px;
+}
+
+.arcade-mascot {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.arcade-mascot-img {
+    width: 36px;
+    height: 36px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    flex-shrink: 0;
+}
+
+.arcade-mascot-bubble {
+    background: var(--bg-post);
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    position: relative;
+}
+
+.arcade-mascot-bubble::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 10px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 6px solid var(--border);
+}
+
+.arcade-wallets {
+    margin-bottom: 6px;
+    font-size: 11px;
+}
+
+.arcade-wallet-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+}
+
+.arcade-wallet-label {
+    font-weight: bold;
+    color: var(--text-primary);
+    min-width: 32px;
+}
+
+.arcade-wallet-addr {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.arcade-wallet-connect {
+    font-size: 10px;
+    color: var(--link);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.arcade-wallet-connect:hover {
+    color: var(--link-hover);
+}
+
+.arcade-balances {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    background: var(--bg-post);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-family: monospace;
+}
+
+.arcade-token-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.arcade-token-name {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.arcade-token-amt {
+    color: var(--text-secondary);
+}
+
+.arcade-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.arcade-act {
+    font-size: 11px;
+    color: var(--link);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.arcade-act:hover {
+    color: var(--link-hover);
+}
+
+/* ==============================
+   Clippy Companion (Remilia Cat)
+   ============================== */
+
+.clippy {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.clippy-img {
+    width: 52px;
+    height: 52px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 0.15s;
+    filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.25));
+}
+
+.clippy-img:hover {
+    transform: scale(1.1);
+}
+
+.clippy-bubble {
+    background: var(--bg-post);
+    border: 2px solid var(--border-dark);
+    padding: 10px 12px;
+    max-width: 240px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    pointer-events: auto;
+    position: relative;
+    box-shadow: 2px 3px 6px rgba(0,0,0,0.15);
+}
+
+.clippy-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 18px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid var(--border-dark);
+}
+
+.clippy-text {
+    font-family: arial, helvetica, sans-serif;
+}
+
+.clippy-cursor {
+    display: inline-block;
+    width: 6px;
+    height: 12px;
+    background: var(--text-primary);
+    margin-left: 1px;
+    animation: clippy-blink 0.6s step-end infinite;
+    vertical-align: text-bottom;
+}
+
+@keyframes clippy-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }

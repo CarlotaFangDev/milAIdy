@@ -2321,3 +2321,107 @@ body:has(.blog-container) .gotchi-shell-top {
 body:has(.blog-container) .gotchi-btn-close {
     font-family: 'Press Start 2P', monospace;
 }
+
+/* ----------------------------------------------------------------
+   Blog Tip Button
+   ---------------------------------------------------------------- */
+.blog-tip-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 1px 6px;
+    cursor: pointer;
+    font-family: monospace;
+    margin-left: 4px;
+}
+
+.blog-tip-btn:hover {
+    background: var(--bg-post-highlight);
+    color: var(--text-primary);
+    border-color: var(--border-dark);
+}
+
+/* ----------------------------------------------------------------
+   Protected Post Badge
+   ---------------------------------------------------------------- */
+.blog-protected-badge {
+    font-size: 9px;
+    color: #228b22;
+    border: 1px solid #228b22;
+    padding: 0 4px;
+    margin-left: 4px;
+    font-family: monospace;
+}
+
+/* ----------------------------------------------------------------
+   Blog - Arcade Overrides
+   ---------------------------------------------------------------- */
+body:has(.blog-container) .arcade-popup {
+    background: var(--bg-post);
+    border-color: var(--border-dark);
+}
+
+body:has(.blog-container) .arcade-header {
+    background: var(--bg-header);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+}
+
+body:has(.blog-container) .arcade-card {
+    background: var(--bg-lighter, #ececec);
+    border-color: var(--border);
+}
+
+body:has(.blog-container) .arcade-card:hover {
+    background: var(--bg-post-highlight);
+}
+
+body:has(.blog-container) .arcade-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+}
+
+/* ----------------------------------------------------------------
+   Blog - Casino Overrides
+   ---------------------------------------------------------------- */
+body:has(.blog-container) .plinko-header,
+body:has(.blog-container) .highlow-header {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+}
+
+/* ----------------------------------------------------------------
+   Blog - Tip Modal Overrides
+   ---------------------------------------------------------------- */
+body:has(.blog-container) .tip-modal {
+    background: var(--bg-post);
+    border-color: var(--border-dark);
+}
+
+body:has(.blog-container) .tip-modal-header {
+    background: var(--bg-header);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+}
+
+body:has(.blog-container) .tip-select,
+body:has(.blog-container) .tip-input {
+    background: var(--bg-lighter, #ececec);
+    border-color: var(--border);
+    color: var(--text-secondary);
+}
+
+body:has(.blog-container) .tip-send-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+}
+
+/* ----------------------------------------------------------------
+   Blog - Price Ticker Override
+   ---------------------------------------------------------------- */
+body:has(.blog-container) .price-ticker {
+    background: var(--bg-post);
+    border-color: var(--border);
+    margin-bottom: 0;
+}

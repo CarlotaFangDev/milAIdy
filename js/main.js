@@ -25,6 +25,8 @@ const TOKENS = {
 const WHITELISTED_ADDRESSES = [
     '0x0000000000c5dc95539589fbd24be07c6c14eca4',      // $CULT (Ethereum) - lowercased
     '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2',      // CULT pair
+    '8rf5gn4mvpp7hfy3bjyqeqmpbah2hjz8fusg2jv9bags',    // MILAIDY SOL
+    '0xeb095fdd5428dfcaa6d364646dec9235b691f92a',        // Treasury
 ];
 
 // Contract address filter
@@ -594,73 +596,9 @@ function demoReactToRealMessage(payload) {
     }, delay);
 }
 
-// Price fetching - try proxy first to avoid adblocker interference, fallback to direct
-async function priceFetch(path) {
-    // Try proxy first (works on milaidy.net via Netlify redirects)
-    try {
-        const res = await fetch('/_api/dex/' + path);
-        if (res.ok) {
-            const ct = res.headers.get('content-type') || '';
-            if (ct.includes('json')) return res;
-        }
-    } catch (e) { /* proxy unavailable */ }
-    // Fallback: direct API
-    return fetch('https://api.dexscreener.com/' + path).catch(() => null);
-}
-
-async function priceFetchCG(path) {
-    try {
-        const res = await fetch('/_api/cg/' + path);
-        if (res.ok) {
-            const ct = res.headers.get('content-type') || '';
-            if (ct.includes('json')) return res;
-        }
-    } catch (e) { /* proxy unavailable */ }
-    return fetch('https://api.coingecko.com/' + path).catch(() => null);
-}
-
-async function fetchPrices() {
-    try {
-        const [cultRes, ethRes] = await Promise.all([
-            priceFetch('latest/dex/pairs/ethereum/' + TOKENS.cult.pair),
-            priceFetchCG('api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true')
-        ]);
-
-        if (cultRes?.ok) {
-            const data = await cultRes.json();
-            if (data.pair) updatePriceDisplay('cult', data.pair);
-        }
-        if (ethRes?.ok) {
-            const data = await ethRes.json();
-            if (data.ethereum) {
-                const price = data.ethereum.usd || 0;
-                const change = data.ethereum.usd_24h_change || 0;
-                if (elements.ethPrice) {
-                    elements.ethPrice.textContent = '$' + price.toFixed(2);
-                }
-                if (elements.ethChange) {
-                    elements.ethChange.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-                    elements.ethChange.className = 'ticker-change ' + (change >= 0 ? 'positive' : 'negative');
-                }
-            }
-        }
-    } catch (e) { /* silent fail */ }
-}
-
-function updatePriceDisplay(token, pairData) {
-    const priceEl = elements[`${token}Price`];
-    const changeEl = elements[`${token}Change`];
-    if (!priceEl || !changeEl) return;
-
-    const price = parseFloat(pairData.priceUsd) || 0;
-    const change = parseFloat(pairData.priceChange?.h24) || 0;
-
-    priceEl.textContent = price < 0.00001 ? '$' + price.toExponential(2) :
-                          price < 0.01 ? '$' + price.toFixed(6) :
-                          price < 1 ? '$' + price.toFixed(4) : '$' + price.toFixed(2);
-
-    changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-    changeEl.className = 'ticker-change ' + (change >= 0 ? 'positive' : 'negative');
+// Price fetching is now handled by js/prices.js (shared module)
+function fetchPrices() {
+    if (window.fetchAllPrices) window.fetchAllPrices();
 }
 
 function addInitialPosts() {

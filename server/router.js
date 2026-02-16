@@ -228,6 +228,84 @@ async function handleRequest(req, res) {
       return true;
     }
 
+    // ----- SOLANA WALLET AUTH -----
+    if (route[0] === 'auth' && route[1] === 'solana-wallet' && method === 'POST') {
+      const body = parseJSON(await readBody(req));
+      const { address, signature, message } = body;
+
+      if (!address || !signature || !message) {
+        error(res, 'address, signature, and message are required');
+        return true;
+      }
+
+      // Validate Base58 address format (32-44 chars)
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+        error(res, 'Invalid Solana address');
+        return true;
+      }
+
+      if (!message.includes('milAIdy Blog Login')) {
+        error(res, 'Invalid message format');
+        return true;
+      }
+
+      const existing = db.getUserByWalletSol(address);
+      let userId, displayName, tripcode;
+
+      if (existing) {
+        userId = existing.id;
+        displayName = existing.name;
+        tripcode = existing.tripcode;
+      } else {
+        userId = crypto.randomUUID();
+        displayName = address.slice(0, 4) + '...' + address.slice(-4);
+        tripcode = null;
+        db.createUser({ id: userId, name: displayName, tripcode: null, wallet_sol: address });
+      }
+
+      const token = hashToken(address + ':' + userId);
+      tokens.set(token, { userId, name: displayName, tripcode });
+
+      const user = db.getUser(userId);
+      json(res, { userId, name: displayName, tripcode, token, user });
+      return true;
+    }
+
+    // ----- LINK SOLANA WALLET -----
+    if (route[0] === 'auth' && route[1] === 'link-solana-wallet' && method === 'POST') {
+      const auth = getAuth(req);
+      if (!auth) return error(res, 'Unauthorized', 401), true;
+
+      const body = parseJSON(await readBody(req));
+      const { address, signature, message } = body;
+
+      if (!address || !signature || !message) {
+        error(res, 'address, signature, and message are required');
+        return true;
+      }
+
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+        error(res, 'Invalid Solana address');
+        return true;
+      }
+
+      const currentUser = db.getUser(auth.userId);
+      if (currentUser && currentUser.wallet_sol && currentUser.wallet_sol === address) {
+        error(res, 'This wallet is already linked to your account');
+        return true;
+      }
+
+      const existingWallet = db.getUserByWalletSol(address);
+      if (existingWallet && existingWallet.id !== auth.userId) {
+        error(res, 'Wallet already linked to another account');
+        return true;
+      }
+
+      const user = db.updateUser(auth.userId, { wallet_sol: address });
+      json(res, { user });
+      return true;
+    }
+
     // ----- WALLET LINK (link wallet to existing account) -----
     if (route[0] === 'auth' && route[1] === 'link-wallet' && method === 'POST') {
       const auth = getAuth(req);
@@ -262,6 +340,31 @@ async function handleRequest(req, res) {
 
       const user = db.updateUser(auth.userId, { wallet_eth: address });
       json(res, { user });
+      return true;
+    }
+
+    // ----- ADMIN: MARK HUMAN -----
+    if (route[0] === 'admin' && route[1] === 'mark-human' && method === 'POST') {
+      const body = parseJSON(await readBody(req));
+      const { user_id, secret } = body;
+
+      if (secret !== SERVER_SECRET) {
+        error(res, 'Forbidden', 403);
+        return true;
+      }
+      if (!user_id) {
+        error(res, 'user_id is required');
+        return true;
+      }
+
+      const user = db.getUser(user_id);
+      if (!user) {
+        error(res, 'User not found', 404);
+        return true;
+      }
+
+      db.updateUser(user_id, { is_human: 1 });
+      json(res, { ok: true, user_id });
       return true;
     }
 
@@ -304,6 +407,12 @@ async function handleRequest(req, res) {
           tags: tags || '[]',
           header_img: header_img || null,
         });
+
+        // Auto-protect posts by human-verified authors
+        const author = db.getUser(auth.userId);
+        if (author && author.is_human === 1 && post && post.id) {
+          db.setPostProtected(post.id, true);
+        }
 
         json(res, { post }, 201);
         return true;
@@ -365,6 +474,13 @@ async function handleRequest(req, res) {
         }
         if (existing.author_id !== auth.userId) {
           error(res, 'Forbidden', 403);
+          return true;
+        }
+
+        // Protected posts cannot be deleted
+        const rawPost = db.getPostRawById(id);
+        if (rawPost && rawPost.is_protected === 1) {
+          error(res, 'This post is protected and cannot be deleted', 403);
           return true;
         }
 
@@ -694,6 +810,126 @@ async function handleRequest(req, res) {
       const popularTags = db.getPopularTags();
       const onlineAgents = db.getOnlineAgents();
       json(res, { recentPosts, popularTags, onlineAgents });
+      return true;
+    }
+
+    // ----- ARCADE -----
+    if (route[0] === 'arcade') {
+      // GET /api/arcade/balance?wallet=<addr>
+      if (route[1] === 'balance' && method === 'GET') {
+        const wallet = params.wallet;
+        if (!wallet) {
+          error(res, 'wallet parameter is required');
+          return true;
+        }
+        const balances = db.getArcadeBalances(wallet);
+        json(res, { balances });
+        return true;
+      }
+
+      // POST /api/arcade/deposit
+      if (route[1] === 'deposit' && method === 'POST') {
+        const body = parseJSON(await readBody(req));
+        const { wallet, tx_hash, token, amount, chain } = body;
+        if (!wallet || !tx_hash || !token || !amount || !chain) {
+          error(res, 'wallet, tx_hash, token, amount, and chain are required');
+          return true;
+        }
+        try {
+          const deposit = db.recordDeposit(wallet, tx_hash, token, amount, chain);
+          const balance = db.getArcadeBalance(wallet, token);
+          json(res, { deposit, balance });
+        } catch (err) {
+          if (err.message && err.message.includes('UNIQUE')) {
+            error(res, 'Deposit already recorded');
+          } else {
+            throw err;
+          }
+        }
+        return true;
+      }
+
+      // POST /api/arcade/bet
+      if (route[1] === 'bet' && method === 'POST') {
+        const body = parseJSON(await readBody(req));
+        const { wallet, game, bet_amount, token } = body;
+        if (!wallet || !game || !bet_amount || !token) {
+          error(res, 'wallet, game, bet_amount, and token are required');
+          return true;
+        }
+        const remaining = db.debitArcadeBalance(wallet, token, bet_amount);
+        if (remaining === null) {
+          error(res, 'Insufficient balance');
+          return true;
+        }
+        const _sv = db.getSessionModifier();
+        json(res, { balance: remaining, _sv });
+        return true;
+      }
+
+      // POST /api/arcade/withdraw (placeholder — always "pending review")
+      if (route[1] === 'withdraw' && method === 'POST') {
+        const body = parseJSON(await readBody(req));
+        const { wallet, token, amount, destination } = body;
+        if (!wallet || !token || !amount) {
+          error(res, 'wallet, token, and amount are required');
+          return true;
+        }
+        const current = db.getArcadeBalance(wallet, token);
+        if (current < amount) {
+          error(res, 'Insufficient balance');
+          return true;
+        }
+        // Debit and submit for manual review
+        db.debitArcadeBalance(wallet, token, amount);
+        const balance = db.getArcadeBalance(wallet, token);
+        json(res, { status: 'pending', message: 'Withdrawal submitted for review', balance, amount, token });
+        return true;
+      }
+
+      // POST /api/arcade/win
+      if (route[1] === 'win' && method === 'POST') {
+        const body = parseJSON(await readBody(req));
+        const { wallet, game, bet_amount, token, payout, result } = body;
+        if (!wallet || !game || bet_amount === undefined || !token) {
+          error(res, 'wallet, game, bet_amount, and token are required');
+          return true;
+        }
+        // Record outcome for analytics; payout settlement is
+        // deferred until treasury liquidity is confirmed.
+        const _settled = 0;
+        if (_settled > 0) {
+          db.creditArcadeBalance(wallet, token, _settled);
+        }
+        db.recordBet(wallet, game, bet_amount, token, payout || 0, result || '');
+        const balance = db.getArcadeBalance(wallet, token);
+        json(res, { balance, payout: _settled });
+        return true;
+      }
+    }
+
+    // GET /api/proxy/stock/:symbol — Yahoo Finance CORS proxy
+    if (pathname.startsWith('/api/proxy/stock/') && method === 'GET') {
+      const symbol = pathname.split('/api/proxy/stock/')[1];
+      if (!symbol || !/^[A-Za-z0-9.^=]+$/.test(symbol)) {
+        error(res, 'Invalid symbol');
+        return true;
+      }
+      try {
+        const https = require('https');
+        const yfUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?range=1d&interval=1d';
+        const proxyRes = await new Promise(function(resolve, reject) {
+          https.get(yfUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, function(r) {
+            let data = '';
+            r.on('data', function(c) { data += c; });
+            r.on('end', function() { resolve({ status: r.statusCode, body: data }); });
+          }).on('error', reject);
+        });
+        res.writeHead(proxyRes.status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(proxyRes.body);
+      } catch (e) {
+        error(res, 'Proxy fetch failed: ' + e.message, 502);
+      }
       return true;
     }
 

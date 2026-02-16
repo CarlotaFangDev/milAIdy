@@ -23,6 +23,13 @@
   status = 200
   force = true
 
+# Yahoo Finance proxy for stock prices (PLTR)
+[[redirects]]
+  from = "/_api/yf/*"
+  to = "https://query1.finance.yahoo.com/:splat"
+  status = 200
+  force = true
+
 # Blog API proxy to backend server
 [[redirects]]
   from = "/api/*"

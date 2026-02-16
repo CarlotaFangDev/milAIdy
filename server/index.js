@@ -10,6 +10,10 @@ const PORT = process.env.PORT || 8080;
 const WHITELISTED_ADDRESSES = [
     '0x0000000000c5dc95539589fbd24be07c6c14eca4',      // $CULT (Ethereum)
     '0xc4ce8e63921b8b6cbdb8fcb6bd64cc701fb926f2',      // CULT pair
+    '8rf5gn4mvpp7hfy3bjyqeqmpbah2hjz8fusg2jv9bags',    // MILAIDY SOL
+    '0xeb095fdd5428dfcaa6d364646dec9235b691f92a',        // Treasury (old)
+    '0x5ef14041f096ae738456e1df4b83db733729615e',        // ETH Treasury (arcade)
+    '31zqbuhgge6rgunfmyf4nencgjtdkxq3kgar12egwcc',      // SOL Treasury (arcade)
 ];
 
 // Contract address detection

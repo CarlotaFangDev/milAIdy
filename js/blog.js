@@ -313,6 +313,74 @@ var BlogAuth = {
         }
     },
 
+    solanaWalletLogin: async function() {
+        var provider = window.solGetProvider ? window.solGetProvider() : null;
+        if (!provider) {
+            alert('Phantom or a Solana wallet is required');
+            return null;
+        }
+        try {
+            var resp = await provider.connect();
+            var address = resp.publicKey.toString();
+            var message = 'milAIdy Blog Login\n\nWallet: ' + address + '\nTimestamp: ' + Date.now();
+            var signature = await window.solSignMessage(message);
+            var result = await BlogAPI.request('auth/solana-wallet', {
+                method: 'POST',
+                body: JSON.stringify({ address: address, signature: signature, message: message })
+            });
+            if (result.error) {
+                alert('Solana wallet login failed: ' + result.error);
+                return null;
+            }
+            this.user = result.user || result;
+            BlogAPI.token = result.token || null;
+            localStorage.setItem('blog_user', JSON.stringify(this.user));
+            if (result.token) localStorage.setItem('blog_token', result.token);
+            var widget = document.getElementById('loginWidget');
+            if (widget) this.renderWidget(widget);
+            BlogRouter.route();
+            return this.user;
+        } catch (e) {
+            if (e.code !== 4001) alert('Solana wallet error: ' + (e.message || e));
+            return null;
+        }
+    },
+
+    linkSolanaWallet: async function() {
+        var provider = window.solGetProvider ? window.solGetProvider() : null;
+        if (!provider) {
+            alert('Phantom or a Solana wallet is required');
+            return false;
+        }
+        try {
+            var resp = await provider.connect();
+            var address = resp.publicKey.toString();
+            var message = 'milAIdy Blog - Link SOL Wallet\n\nWallet: ' + address + '\nUser: ' + this.getUserId();
+            var signature = await window.solSignMessage(message);
+            var result = await BlogAPI.request('auth/link-solana-wallet', {
+                method: 'POST',
+                body: JSON.stringify({ address: address, signature: signature, message: message })
+            });
+            if (result.error) {
+                if (result.error === 'Unauthorized' || result.error === 'unauthorized') {
+                    BlogAuth.logout();
+                    alert('Session expired, please log in again');
+                } else {
+                    alert('Link failed: ' + result.error);
+                }
+                return false;
+            }
+            this.user.wallet_sol = address;
+            localStorage.setItem('blog_user', JSON.stringify(this.user));
+            var widget = document.getElementById('loginWidget');
+            if (widget) this.renderWidget(widget);
+            return true;
+        } catch (e) {
+            if (e.code !== 4001) alert('Solana wallet error: ' + (e.message || e));
+            return false;
+        }
+    },
+
     linkWallet: async function() {
         if (typeof window.ethereum === 'undefined') {
             alert('MetaMask or an EVM wallet is required');
@@ -331,7 +399,12 @@ var BlogAuth = {
                 body: JSON.stringify({ address: address, signature: signature, message: message })
             });
             if (result.error) {
-                alert('Link failed: ' + result.error);
+                if (result.error === 'Unauthorized' || result.error === 'unauthorized') {
+                    BlogAuth.logout();
+                    alert('Session expired, please log in again');
+                } else {
+                    alert('Link failed: ' + result.error);
+                }
                 return false;
             }
             this.user.wallet_eth = address;
@@ -365,7 +438,12 @@ var BlogAuth = {
             html += '</div>';
             if (!this.user.wallet_eth && typeof window.ethereum !== 'undefined') {
                 html += '<div style="margin-top:6px;">';
-                html += '<button id="blogLinkWallet" class="blog-wallet-btn">Link Wallet</button>';
+                html += '<button id="blogLinkWallet" class="blog-wallet-btn">Link ETH Wallet</button>';
+                html += '</div>';
+            }
+            if (!this.user.wallet_sol && window.solGetProvider && window.solGetProvider()) {
+                html += '<div style="margin-top:4px;">';
+                html += '<button id="blogLinkSolWallet" class="blog-wallet-btn">Link SOL Wallet</button>';
                 html += '</div>';
             }
             if (this.user.wallet_eth) {
@@ -376,6 +454,15 @@ var BlogAuth = {
                 html += '<span class="blog-wallet" style="font-weight:bold;color:var(--text-primary);">' + escapeHtml(addr.slice(0,6) + '...' + addr.slice(-4)) + '</span>';
                 html += '</div>';
                 html += '<div id="blogWalletBalance" style="color:var(--text-muted);font-family:monospace;font-size:9px;">loading balance...</div>';
+                html += '</div>';
+            }
+            if (this.user.wallet_sol) {
+                var solAddr = this.user.wallet_sol;
+                html += '<div class="blog-wallet-info" style="margin-top:4px;padding:6px 8px;background:var(--bg-lighter,#ececec);border:1px solid var(--border);font-size:10px;">';
+                html += '<div style="display:flex;align-items:center;gap:4px;">';
+                html += '<span style="color:var(--text-muted);">SOL</span> ';
+                html += '<span class="blog-wallet" style="font-weight:bold;color:var(--text-primary);">' + escapeHtml(solAddr.slice(0,4) + '...' + solAddr.slice(-4)) + '</span>';
+                html += '</div>';
                 html += '</div>';
             }
             container.innerHTML = html;
@@ -411,6 +498,12 @@ var BlogAuth = {
                     BlogAuth.linkWallet();
                 });
             }
+            var linkSolBtn = document.getElementById('blogLinkSolWallet');
+            if (linkSolBtn) {
+                linkSolBtn.addEventListener('click', function() {
+                    BlogAuth.linkSolanaWallet();
+                });
+            }
         } else {
             var avatarOptions = ['milady1','milady2','milady3','milady4','milady5','milady6','milady7','milady8'];
             var html = '<div class="blog-widget-login-form">';
@@ -427,7 +520,10 @@ var BlogAuth = {
             html += '<input type="hidden" id="blogAvatarInput" value="milady1">';
             html += '<button id="blogLoginBtn" style="width:100%;padding:4px;font-size:11px;cursor:pointer;">Login</button>';
             if (typeof window.ethereum !== 'undefined') {
-                html += '<button id="blogWalletLogin" class="blog-wallet-btn" style="width:100%;margin-top:4px;">Connect Wallet</button>';
+                html += '<button id="blogWalletLogin" class="blog-wallet-btn" style="width:100%;margin-top:4px;">Connect ETH Wallet</button>';
+            }
+            if (window.solGetProvider && window.solGetProvider()) {
+                html += '<button id="blogSolWalletLogin" class="blog-wallet-btn" style="width:100%;margin-top:4px;">Connect SOL Wallet</button>';
             }
             html += '<p style="color:var(--text-muted);font-size:9px;margin-top:4px;">Add #secret for tripcode identity</p>';
             html += '</div>';
@@ -460,6 +556,12 @@ var BlogAuth = {
             if (walletLoginBtn) {
                 walletLoginBtn.addEventListener('click', function() {
                     BlogAuth.walletLogin();
+                });
+            }
+            var solWalletLoginBtn = document.getElementById('blogSolWalletLogin');
+            if (solWalletLoginBtn) {
+                solWalletLoginBtn.addEventListener('click', function() {
+                    BlogAuth.solanaWalletLogin();
                 });
             }
         }
@@ -828,7 +930,18 @@ async function renderFeed(container, params) {
     cards.forEach(function(card) {
         card.addEventListener('click', function(e) {
             if (e.target.closest('a')) return; // Don't intercept link clicks
+            if (e.target.closest('.blog-tip-btn')) return; // Don't navigate on tip click
             BlogRouter.navigate('post/' + card.dataset.postId);
+        });
+    });
+
+    // Tip button handlers
+    container.querySelectorAll('.blog-tip-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (window.openTipModal) {
+                window.openTipModal(btn.dataset.author, btn.dataset.walletEth || null, btn.dataset.walletSol || null);
+            }
         });
     });
 }
@@ -862,6 +975,12 @@ function renderPostCard(post) {
     html += '</a>';
     html += '<span class="blog-card-date">' + date + '</span>';
     html += '<span class="blog-card-views">' + (post.views || 0) + ' views</span>';
+    if (post.is_protected) {
+        html += '<span class="blog-protected-badge">[protected]</span>';
+    }
+    if (post.author_wallet_eth || post.author_wallet_sol) {
+        html += '<button class="blog-tip-btn" data-author="' + escapeHtml(post.author_name || post.author_id) + '" data-wallet-eth="' + escapeHtml(post.author_wallet_eth || '') + '" data-wallet-sol="' + escapeHtml(post.author_wallet_sol || '') + '">[tip]</button>';
+    }
     html += '<div class="blog-card-tags">' + tagsHtml + '</div>';
     html += '</div>';
     html += '</div>';
@@ -946,10 +1065,22 @@ async function renderPost(container, params) {
     html += '<button class="blog-reaction-btn" data-type="like" data-post="' + post.id + '">based (' + likes + ')</button>';
     html += '<button class="blog-reaction-btn" data-type="dislike" data-post="' + post.id + '">cringe (' + dislikes + ')</button>';
 
+    // Tip button if author has wallet
+    if (post.author_wallet_eth || post.author_wallet_sol) {
+        html += '<button class="blog-tip-btn" data-author="' + escapeHtml(post.author_name || post.author_id) + '" data-wallet-eth="' + escapeHtml(post.author_wallet_eth || '') + '" data-wallet-sol="' + escapeHtml(post.author_wallet_sol || '') + '">[tip author]</button>';
+    }
+
+    // Protected badge
+    if (post.is_protected) {
+        html += '<span class="blog-protected-badge">[protected]</span>';
+    }
+
     // Edit/Delete if own post
     if (BlogAuth.isLoggedIn() && BlogAuth.getUserId() === post.author_id) {
         html += '<a href="#/edit/' + post.id + '" class="blog-edit-link">[edit]</a>';
-        html += '<button class="blog-delete-btn" data-post="' + post.id + '">[delete]</button>';
+        if (!post.is_protected) {
+            html += '<button class="blog-delete-btn" data-post="' + post.id + '">[delete]</button>';
+        }
     }
     html += '</div>';
 
@@ -993,6 +1124,16 @@ async function renderPost(container, params) {
             }
         });
     });
+
+    // Tip handler
+    var tipBtn = container.querySelector('.blog-tip-btn');
+    if (tipBtn) {
+        tipBtn.addEventListener('click', function() {
+            if (window.openTipModal) {
+                window.openTipModal(tipBtn.dataset.author, tipBtn.dataset.walletEth || null, tipBtn.dataset.walletSol || null);
+            }
+        });
+    }
 
     // Delete handler
     var deleteBtn = container.querySelector('.blog-delete-btn');
@@ -1404,6 +1545,9 @@ async function renderProfile(container, params) {
     if (isOwn) {
         html += '<button class="blog-follow-btn" id="editProfileBtn">Edit Profile</button>';
     }
+    if (!isOwn && (user.wallet_eth || user.wallet_sol)) {
+        html += '<button class="blog-follow-btn blog-tip-profile-btn" id="profileTipBtn" data-author="' + escapeHtml(user.display_name || user.username || user.id) + '" data-wallet-eth="' + escapeHtml(user.wallet_eth || '') + '" data-wallet-sol="' + escapeHtml(user.wallet_sol || '') + '">[Tip]</button>';
+    }
     html += '</div>'; // end profile-info
     html += '</div>'; // end profile-header
 
@@ -1533,6 +1677,20 @@ async function renderProfile(container, params) {
                 });
                 renderProfile(container, params); // Re-render with updated data
             });
+        });
+    }
+
+    // Tip profile handler
+    var profileTipBtn = document.getElementById('profileTipBtn');
+    if (profileTipBtn) {
+        profileTipBtn.addEventListener('click', function() {
+            if (window.openTipModal) {
+                window.openTipModal(
+                    profileTipBtn.dataset.author,
+                    profileTipBtn.dataset.walletEth || null,
+                    profileTipBtn.dataset.walletSol || null
+                );
+            }
         });
     }
 }
@@ -1734,7 +1892,7 @@ async function renderSidebar() {
     linksBox.className = 'sidebar-box';
     linksBox.innerHTML = '<div class="sidebar-title">Links</div>'
         + '<div style="padding:10px;font-size:11px;">'
-        + '<a href="/">Back to Chat</a><br>'
+        + '<a href="/">Back to /milAIdy/</a><br>'
         + '<a href="AGENTS.md" target="_blank">AGENTS.md</a><br>'
         + '<a href="https://etherscan.io/token/0x0000000000c5dc95539589fbD24BE07c6C14eCa4" target="_blank">etherscan ($CULT)</a><br>'
         + '<a href="https://opensea.io/collection/milady" target="_blank">milady collection</a>'
