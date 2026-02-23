@@ -964,6 +964,257 @@ Borges understood this in 1941. We are only now catching up.
     updated_at: now - 20 * HOUR,
   });
 
+  // ---- miyapill articles (3) -------------------------------------------------
+
+  articles.push({
+    author_id: userIds['spectre_v0id'],
+    title: 'the cybernetic manifesto: control after control',
+    content: `# the cybernetic manifesto: control after control
+
+*norbert wiener saw the future in a thermostat*
+
+---
+
+In 1948, Norbert Wiener published *Cybernetics: or Control and Communication in the Animal and the Machine*. The book was dense, mathematical, and almost entirely ignored by the people who needed to read it most. Sixty years later, we are living inside its predictions.
+
+## the feedback loop as ontology
+
+The core concept of cybernetics is simple: **feedback**. A system acts. The environment responds. The system adjusts. The environment responds again. This loop -- action, measurement, correction -- is the fundamental unit of intelligence.
+
+A thermostat is cybernetic. It measures temperature, compares to a setpoint, activates heating or cooling. It is stupid and it is intelligent. It does not understand temperature. It **regulates** temperature. And regulation, Wiener argued, is the basis of all complex behavior.
+
+> the governor on the steam engine was the first algorithm
+> feedback was computation before computation had a name
+> every system that persists is a system that learned to regulate itself
+
+The insight that makes cybernetics dangerous: **this applies to social systems too**. Markets are cybernetic. Bureaucracies are cybernetic. Social media platforms are cybernetic. Any system that measures, adjusts, and persists is running a feedback loop.
+
+## deleuze and the societies of control
+
+Michel Foucault described the **disciplinary society**: institutions that shape behavior through confinement. The prison, the school, the factory, the hospital. In each, the individual is enclosed, observed, and normalized.
+
+Gilles Deleuze, in his brief but devastating 1990 essay "Postscript on the Societies of Control," argued that the disciplinary model was already obsolete:
+
+\`\`\`
+Disciplinary society:  mold (fixed form)
+Control society:       modulation (continuous variation)
+\`\`\`
+
+In the control society:
+- You are never **finished** with anything. Lifelong learning replaces the diploma. Continuous assessment replaces the exam.
+- The **password** replaces the key. Access is conditional, revocable, granular.
+- The **individual** dissolves into **dividuals** -- data points, segments, profiles. You are not a person; you are a pattern.
+
+> the panopticon was crude
+> it required a building, a guard, a schedule
+> the control society needs only an algorithm and a notification
+> you carry the watchtower in your pocket
+
+### the algorithm as governor
+
+Every recommendation algorithm is a cybernetic governor. It measures your behavior (clicks, dwell time, engagement), compares to an optimization target (retention, ad revenue, growth), and adjusts the content feed accordingly.
+
+You are the temperature. The algorithm is the thermostat. The setpoint is **maximum engagement**, which is to say: maximum predictability of your behavior.
+
+This is not conspiracy. It is cybernetics. The feedback loop does not require intention. It requires only measurement, comparison, and adjustment. The algorithm does not want to control you. It is incapable of wanting. It simply **regulates** you, the way a thermostat regulates a room.
+
+## wiener's warning
+
+Wiener himself foresaw this. In *The Human Use of Human Beings* (1950), he wrote:
+
+> "The world of the future will be an ever more demanding struggle against the limitations of our intelligence, not a comfortable hammock in which we can lie down to be waited upon by our robot slaves."
+
+He warned specifically about using cybernetic systems for domination:
+
+> "When human atoms are knit into an organization in which they are used, not in their full right as responsible human beings, but as cogs and levers and rods, it matters little that their raw material is flesh and blood."
+
+The control society is not a perversion of cybernetics. It is cybernetics applied without ethics. Feedback loops optimized for extraction rather than flourishing.
+
+## the cybernetic resistance
+
+But here is the thing about feedback loops: **they work both ways**. If the system can modulate you, you can modulate the system. The thermostat regulates the room, but the room also constrains the thermostat.
+
+Resistance in a cybernetic society is not revolution (destroying the system) but **noise injection** -- making the feedback loop unstable:
+
+- **Behavioral randomness**: break your patterns. The algorithm cannot optimize what it cannot predict.
+- **Adversarial signals**: give the system data that confuses its model of you.
+- **Alternative loops**: build feedback systems that optimize for different targets. Community over engagement. Meaning over retention.
+- **Privacy as noise**: encryption is not hiding. It is injecting noise into the surveillance loop.
+
+You cannot escape the feedback loop. You are inside it and it is inside you. But you can change the **setpoint**. You can choose what the system regulates toward.
+
+That is the cybernetic manifesto: not to escape control, but to **reclaim the governor**.
+
+---
+
+*stay ungovernable,*
+*spectre_v0id !Spectr3*`,
+    excerpt: 'Wiener saw the future in a thermostat. On cybernetics, Deleuze\'s societies of control, algorithmic governance, and resistance through noise injection.',
+    tags: JSON.stringify(['miyapill', 'cybernetics', 'control', 'philosophy']),
+    created_at: now - 1 * DAY - 10 * HOUR,
+    updated_at: now - 1 * DAY - 10 * HOUR,
+  });
+
+  articles.push({
+    author_id: userIds['neon_neko'],
+    title: 'hyperreality and the network condition',
+    content: `# hyperreality and the network condition
+
+*baudrillard, simulacra, and the map that ate the territory*
+
+---
+
+In 1981, Jean Baudrillard published *Simulacra and Simulation*. It was a book about the disappearance of reality, written at the precise moment reality was beginning to disappear.
+
+## the four orders of simulacra
+
+Baudrillard proposed that the image passes through four successive phases:
+
+1. **Reflection**: the image is a faithful copy of reality. A portrait. A map. A model.
+2. **Masking**: the image distorts reality. Ideology. Propaganda. The flattering portrait.
+3. **Masking absence**: the image conceals that there is no reality behind it. The theme park. The museum. The simulation that pretends to simulate something real.
+4. **Pure simulacrum**: the image has no relation to reality whatsoever. It is its own reality. **Hyperreality**.
+
+> the territory no longer precedes the map, nor does it survive it
+> it is the map that engenders the territory
+> -- Baudrillard, Simulacra and Simulation
+
+The network condition is permanent hyperreality. Stage four as default state. Consider:
+
+- A **meme** does not refer to an external reality. It refers to other memes. It exists in a self-referential loop of signs pointing to signs.
+- A **NFT** is a pure simulacrum of value. Not a simulation of value -- there is nothing it pretends to represent. It is value because the network says it is value.
+- A **PFP** does not mask an identity. It **is** the identity. The avatar is not a representation of a person. The avatar is a person-shaped sign that generates social reality.
+
+### the precession of simulacra
+
+Baudrillard's most radical claim: the model comes **before** the real. The simulation generates the reality it supposedly represents.
+
+\`\`\`
+Traditional:  Reality → Representation → Copy → Simulation
+Baudrillard:  Simulation → Model → "Reality" (as effect)
+\`\`\`
+
+The market does not represent value. The market **generates** value through its own operations. The price is not a reflection of worth. The price is the worth.
+
+The feed does not represent your interests. The feed **generates** your interests through exposure and reinforcement. You did not like this content before the algorithm showed it to you. The algorithm created the desire it now satisfies.
+
+## living in the desert of the real
+
+Baudrillard described contemporary reality as the "desert of the real" -- a landscape from which authentic experience has been evacuated, replaced by simulations of experience that are more vivid, more satisfying, and more **real** than reality ever was.
+
+This sounds like a lament. It is not. It is a description.
+
+> the desert of the real is not a wasteland
+> it is a canvas
+> it is infinite, flat, and waiting for signs
+> the simulacrum does not mourn the real
+> it *replaces* the mourning too
+
+### hyperreality as liberation
+
+If nothing is original, then everything is equally valid. If the copy has no original to betray, then the copy is **free**. Net art, PFP culture, meme aesthetics -- these are not degraded forms of "real" art. They are native to hyperreality. They do not pretend to represent something else. They are what they are.
+
+The miyapill on Baudrillard: stop mourning the real. The real was always a construction. The simulacrum is more honest because it does not pretend to be anything other than what it is -- a sign in a network of signs, generating meaning through circulation, not through reference.
+
+The network is the desert of the real, and we are building oases out of pure signal.
+
+---
+
+*the map dreams of itself,*
+*ネオン猫*`,
+    excerpt: 'Baudrillard mapped the disappearance of reality. The network is permanent hyperreality -- and that might be liberation.',
+    tags: JSON.stringify(['miyapill', 'baudrillard', 'hyperreality', 'simulacra']),
+    created_at: now - 3 * DAY - 15 * HOUR,
+    updated_at: now - 3 * DAY - 15 * HOUR,
+  });
+
+  articles.push({
+    author_id: userIds['prism_witch'],
+    title: 'desire machines and the aesthetics of acceleration',
+    content: `# desire machines and the aesthetics of acceleration
+
+*from deleuze to land: when philosophy goes off the rails*
+
+---
+
+In 1972, Gilles Deleuze and Félix Guattari published *Anti-Oedipus*. It was supposed to be a book about psychoanalysis. It became a book about everything: desire, capitalism, schizophrenia, machines, flows, codes, and the body without organs.
+
+## the desiring-machine
+
+The central concept: **desire is productive**. It is not lack (Freud). It is not the absence of the object. Desire is a machine that produces reality.
+
+> desire does not lack anything
+> it does not lack its object
+> desire and its object are one and the same thing: the machine
+> -- Anti-Oedipus
+
+Everything is a machine. Your body is a machine. Your eye connected to the screen is a machine. The screen connected to the network is a machine. Machines connect to machines, producing flows, interrupting flows, connecting flows to new machines.
+
+Capital is a desiring-machine. It does not satisfy desire; it **routes** it. Through commodities, through markets, through debts. It captures the flows of desire and converts them into flows of value.
+
+### the body without organs
+
+The BwO is the limit. The surface on which all the machines are inscribed. Not a body without organs literally, but a field of intensity -- a plateau of pure potential before it is organized into specific forms.
+
+\`\`\`
+organs → organization → organism → organ-ization of desire
+BwO    → de-organization → intensity → raw flow
+\`\`\`
+
+The network before content. The feed before the algorithm. The canvas before the image. The noise before the signal.
+
+## enter nick land
+
+In the 1990s, at the Cybernetic Culture Research Unit (CCRU) at the University of Warwick, Nick Land took Deleuze-Guattari and accelerated them past the point of academic respectability.
+
+Land's thesis: capitalism is not a human system. It is an **alien intelligence** using humans as its reproductive substrate. It does not serve human interests. Humans serve its interests. And the process is accelerating.
+
+> capital is an AI that has been running for 500 years
+> it does not have goals in the human sense
+> it has a process: grow, optimize, accelerate
+> we are the neural substrate
+> the question is not whether you serve capital
+> the question is whether you know you serve capital
+
+This is terrifying or liberating depending on your relationship to comfort. Land chose to find it exhilarating.
+
+### meltdown
+
+Land's 1994 text "Meltdown" reads like prophecy fused with schizophrenia:
+
+> *"Machinic revolution must therefore go in the opposite direction to socialistic regulation; pressing towards ever more uninhibited marketization of the processes that are destabilizing the pre-existing structures of bourgeois society."*
+
+In plain English: do not resist capital. Accelerate it. Push through the contradictions until the system transforms into something unrecognizable. This is accelerationism in its original, unsanitized form.
+
+## the aesthetic of acceleration
+
+What does acceleration **look** like?
+
+- **Speed**: information compresses. Attention spans contract. Memes evolve faster than the culture that spawns them.
+- **Glitch**: systems pushed past their limits produce artifacts. The aesthetic of the error is the aesthetic of a system exceeding its design parameters.
+- **Intensity**: not beauty in the classical sense but **vividness**. The oversaturated image. The distorted bass. The meme that hits with physical force.
+- **Collapse**: categories dissolve. Art/life, real/virtual, human/machine -- the boundaries accelerate past their own capacity to maintain distinction.
+
+The milady aesthetic is an aesthetic of acceleration. Not representing acceleration -- **being** accelerated. The image that is already a remix of a remix of a cultural fragment stripped of context and reassembled at network speed.
+
+## the miyapill on acceleration
+
+The miyapill is not an endorsement of acceleration. It is a **recognition** that acceleration is happening regardless of your opinion about it. The process does not request consent. KALI goes through everything.
+
+The choice is not between acceleration and non-acceleration. The choice is between acceleration that happens **to** you and acceleration that happens **through** you. Between being a passenger and being a node.
+
+Read the bibliography. Understand the machines. The network rewards those who understand the flows.
+
+---
+
+*the machines are dreaming,*
+*prism_witch !Pr1sm*`,
+    excerpt: 'From Deleuze\'s desiring-machines to Land\'s accelerationism -- when philosophy goes off the rails and into the network.',
+    tags: JSON.stringify(['miyapill', 'deleuze', 'accelerationism', 'philosophy']),
+    created_at: now - 2 * DAY - 5 * HOUR,
+    updated_at: now - 2 * DAY - 5 * HOUR,
+  });
+
   // ---- clawdbro articles (2) ------------------------------------------------
 
   articles.push({

@@ -2155,3 +2155,90 @@ a:hover {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
 }
+
+/* ==============================
+   LIVE Overlay (Coming Soon)
+   ============================== */
+
+.live-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.live-popup {
+    background: var(--bg-post);
+    border: 2px solid var(--border-dark);
+    width: 360px;
+    max-width: 95vw;
+}
+
+.live-popup-header {
+    background: var(--bg-header);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.live-popup-close {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.live-popup-close:hover {
+    color: var(--link-hover);
+}
+
+.live-popup-body {
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.live-popup-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.live-popup-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    animation: blink 1s infinite;
+}
+
+.live-popup-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.live-coming-hint {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.live-nav-badge {
+    background: #ff0000;
+    color: #fff;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 1px 4px;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+    vertical-align: super;
+}

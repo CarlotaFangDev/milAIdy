@@ -16,7 +16,8 @@
         'Connect both ETH and SOL wallets for full multi-chain access.',
         'Snake and Miladygotchi are free, no deposit needed.',
         'Try demo mode to learn the games before betting real tokens.',
-        'Limbo tip: lower targets = higher win chance.'
+        'Limbo tip: lower targets = higher win chance.',
+        'Slots: match 3 miladys for the big jackpot!'
     ];
 
     function openArcade() {
@@ -175,6 +176,7 @@
             case 'plinko': if (window.openPlinko) window.openPlinko(); break;
             case 'highlow': if (window.openHighLow) window.openHighLow(); break;
             case 'limbo': if (window.openLimbo) window.openLimbo(); break;
+            case 'slots': if (window.openSlots) window.openSlots(); break;
         }
     }
 
