@@ -2425,3 +2425,148 @@ body:has(.blog-container) .price-ticker {
     border-color: var(--border);
     margin-bottom: 0;
 }
+
+/* ----------------------------------------------------------------
+   Library View (miyapill bibliography)
+   ---------------------------------------------------------------- */
+
+.library-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.library-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: var(--bg-post);
+    border: 1px solid var(--border-dark);
+    margin-bottom: 16px;
+}
+
+.library-header-img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border: 1px solid var(--border-dark);
+    flex-shrink: 0;
+}
+
+.library-header-text {
+    flex: 1;
+}
+
+.library-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.library-subtitle {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.library-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.library-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--bg-post);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: border-color 0.15s, background 0.15s;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.library-entry:hover {
+    border-color: var(--border-dark);
+    background: var(--bg-post-highlight);
+    color: var(--text-primary);
+}
+
+.library-year {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--text-primary);
+    background: var(--bg-header);
+    border: 1px solid var(--border-dark);
+    padding: 3px 6px;
+    flex-shrink: 0;
+    min-width: 42px;
+    text-align: center;
+}
+
+.library-entry-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.library-author {
+    font-weight: bold;
+    color: var(--text-primary);
+    font-size: 11px;
+}
+
+.library-entry-title {
+    color: var(--link);
+    font-size: 12px;
+}
+
+.library-entry:hover .library-entry-title {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.library-tag {
+    font-size: 9px;
+    color: var(--tag-text, var(--text-muted));
+    background: var(--tag-bg, var(--bg-header));
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .library-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .library-header-img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .library-title {
+        font-size: 14px;
+    }
+
+    .library-entry {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 10px;
+    }
+
+    .library-tag {
+        margin-left: auto;
+    }
+}

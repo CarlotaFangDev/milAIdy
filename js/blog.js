@@ -818,6 +818,7 @@ var BlogRouter = {
         this.routes['profile/:id'] = renderProfile;
         this.routes['tag/:tag'] = renderFeed;
         this.routes['bulletins'] = renderBulletins;
+        this.routes['library'] = renderLibrary;
 
         var self = this;
         window.addEventListener('hashchange', function() {
@@ -1775,6 +1776,64 @@ async function renderBulletins(container) {
 }
 
 // ============================================
+// LIBRARY VIEW (miyapill bibliography)
+// ============================================
+
+var MIYAPILL_WORKS = [
+    { year: 1858, author: 'Marx', title: 'Fragment on Machines', tag: 'political economy', url: 'https://la.utexas.edu/users/hcleaver/357k/357kTable.pdf' },
+    { year: 1883, author: 'Nietzsche', title: 'Thus Spoke Zarathustra', tag: 'philosophy', url: 'https://www.gutenberg.org/files/1998/1998-h/1998-h.htm' },
+    { year: 1926, author: 'Garrett', title: 'Ouroboros, or The Mechanical Extension of Mankind', tag: 'technics', url: 'https://mises.org/library/book/ouroboros-or-mechanical-extension-mankind' },
+    { year: 1931, author: 'Spengler', title: 'Man and Technics', tag: 'decline', url: 'https://archive.org/download/spenglerthemanandtechnics/Spengler%20The%20Man%20and%20Technics.pdf' },
+    { year: 1945, author: 'Hayek', title: 'The Use of Knowledge in Society', tag: 'economics', url: 'https://www.econlib.org/library/Essays/hykKnw.html' },
+    { year: 1948, author: 'Wiener', title: 'Cybernetics', tag: 'cybernetics', url: 'https://archive.org/details/cybaborcontam00norb/mode/2up' },
+    { year: 1964, author: 'Burroughs', title: 'Nova Express', tag: 'cut-up', url: 'https://libgen.is/book/index.php?md5=5F65E208B5E9B02D2BF8AABB11159153' },
+    { year: 1981, author: 'Baudrillard', title: 'Simulacra and Simulation', tag: 'simulacra', url: 'https://archive.org/download/simulacra-and-simulation-1995-university-of-michigan-press/Simulacra%20and%20Simulation%20%281995%2C%20University%20of%20Michigan%20Press%29.pdf' },
+    { year: 1984, author: 'Clastres', title: 'Society Against the State', tag: 'anthropology', url: 'https://libgen.is/book/index.php?md5=7BEF2A9B1E76F48BC0741F10B28E' },
+    { year: 1985, author: 'Burroughs', title: 'The Adding Machine', tag: 'essays', url: 'https://libgen.is/book/index.php?md5=B26AFAF0D0B7C9C1F389D9A8E75B8C87' },
+    { year: 1987, author: 'Parfrey', title: 'Apocalypse Culture', tag: 'counterculture', url: 'https://libgen.is/book/index.php?md5=2F4C72B2DD6C45ED9021F3B1F1B84736' },
+    { year: 1989, author: 'Rucker & Wilson', title: 'Semiotext(e) SF', tag: 'speculative fiction', url: 'https://monoskop.org/images/0/09/Rucker_Rudy_Wilson_Peter_Lamborn_eds_Semiotext%28e%29_SF_1989.pdf' },
+    { year: 1991, author: 'DeLanda', title: 'War in the Age of Intelligent Machines', tag: 'machinic phylum', url: 'https://monoskop.org/images/c/c1/DeLanda_Manuel_War_in_the_Age_of_Intelligent_Machines.pdf' },
+    { year: 1992, author: 'Deleuze', title: 'Postscript on Societies of Control', tag: 'control', url: 'https://cidfranca.com/wp-content/uploads/2023/10/Deleuze-Postscript.pdf' },
+    { year: 1995, author: 'Land', title: 'Meltdown / Cyberpositive', tag: 'accelerationism', url: 'https://libgen.is/book/index.php?md5=54B69BCDF6E2BFB7B524E0E1B2FC5B84' },
+    { year: 2005, author: 'Stross', title: 'Accelerando', tag: 'singularity', url: 'https://www.antipope.org/charlie/blog-static/fiction/accelerando/accelerando.html' },
+    { year: 2005, author: 'Sagan & Schneider', title: 'Into the Cool', tag: 'thermodynamics', url: 'https://libgen.is/book/index.php?md5=E17014C5F780AEF339D8B7E47EC087C7' },
+    { year: 2010, author: 'Ligotti', title: 'The Conspiracy Against the Human Race', tag: 'pessimism', url: 'https://are.na/block/22998514' }
+];
+
+function renderLibrary(container) {
+    var html = '<div class="library-container">';
+
+    // Header
+    html += '<div class="library-header">';
+    html += '<img src="assets/library/miyapill.png" alt="miyapill" class="library-header-img">';
+    html += '<div class="library-header-text">';
+    html += '<h1 class="library-title">miyapill library</h1>';
+    html += '<p class="library-subtitle">curated bibliography 1858\u20132010</p>';
+    html += '</div>';
+    html += '</div>';
+
+    // Grid of entries
+    html += '<div class="library-grid">';
+
+    for (var i = 0; i < MIYAPILL_WORKS.length; i++) {
+        var work = MIYAPILL_WORKS[i];
+        html += '<a href="' + escapeHtml(work.url) + '" target="_blank" rel="noopener" class="library-entry">';
+        html += '<span class="library-year">' + work.year + '</span>';
+        html += '<div class="library-entry-body">';
+        html += '<span class="library-author">' + escapeHtml(work.author) + '</span>';
+        html += '<span class="library-entry-title">' + escapeHtml(work.title) + '</span>';
+        html += '</div>';
+        html += '<span class="library-tag">' + escapeHtml(work.tag) + '</span>';
+        html += '</a>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+}
+
+// ============================================
 // SIDEBAR
 // ============================================
 
@@ -1799,6 +1858,7 @@ async function renderSidebar() {
     navHtml += '<div style="padding:10px;font-size:11px;">';
     navHtml += '<a href="#/">Feed</a><br>';
     navHtml += '<a href="#/bulletins">Bulletins</a><br>';
+    navHtml += '<a href="#/library">Library</a><br>';
     if (BlogAuth.isLoggedIn()) {
         navHtml += '<a href="#/write">Write Post</a><br>';
         navHtml += '<a href="#/profile/' + encodeURIComponent(BlogAuth.getUserId()) + '">My Profile</a><br>';

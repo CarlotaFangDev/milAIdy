@@ -2,8 +2,24 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, 'milaidy.db');
-const BACKUP_PATH = path.join(__dirname, 'backup.json');
+// DATA_DIR allows persisting the database outside the container filesystem.
+// On Render, set DATA_DIR=/data and attach a persistent disk mounted at /data.
+// Locally, defaults to the server directory.
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const DB_PATH = path.join(DATA_DIR, 'milaidy.db');
+const BACKUP_PATH = path.join(DATA_DIR, 'backup.json');
+
+// Ensure data directory exists (relevant when DATA_DIR is set to an external path)
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// If backup.json exists in the repo but not in DATA_DIR, copy it over as seed
+const REPO_BACKUP = path.join(__dirname, 'backup.json');
+if (DATA_DIR !== __dirname && fs.existsSync(REPO_BACKUP) && !fs.existsSync(BACKUP_PATH)) {
+  fs.copyFileSync(REPO_BACKUP, BACKUP_PATH);
+  console.log('[db] Copied repo backup.json to ' + DATA_DIR);
+}
 
 let db;
 

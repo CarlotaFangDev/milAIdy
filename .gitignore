@@ -29,3 +29,6 @@ build/
 *.db
 *.db-shm
 *.db-wal
+
+# Live backup data (persisted on Render disk, not in repo)
+server/backup.json
